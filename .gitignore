@@ -1,0 +1,11 @@
+# Never commit local credentials or deployment backups.
+.clasprc.json
+.clasprc.*
+.env
+.env.*
+!.env.example
+node_modules/
+ecosilk-receiver-deployment/
+*oauth*client*.json
+client_secret*.json
+credentials.json

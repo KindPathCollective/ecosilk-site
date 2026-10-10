@@ -72,6 +72,19 @@ Script, perform an authenticated sandbox-buyer checkout, and reconcile the captu
 ID, currency, amount, SKU quantities and exactly-once inventory change in the Sheet.
 An approved order alone must not trigger paid fulfilment or inventory reduction.
 
+### Claude Code deployment handoff
+
+`tools/apps-script-deploy/CLAUDE-CODE-HANDOFF.md` contains the ready-to-use local
+deployment instructions, reviewed sandbox receiver, and a staged clasp helper.
+It clones and backs up the existing Apps Script, preserves other source files,
+prepares the Advanced Sheets manifest, and separates source upload from activation
+of the existing webhook deployment. It needs the user's local Google login.
+
+The Sheet setup is complete: `Inventory` retains the existing inventory data and
+`Orders` has the 12 reconciliation headers. The receiver has 26 passing mocked tests;
+the helper has 6 passing mocked checks. These do not prove deployment or payment
+success. Apps Script deployment and the authenticated buyer checkout remain pending.
+
 ### AI worker (Cloudflare, free tier)
 
 ```bash
