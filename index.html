@@ -41,7 +41,7 @@
       </div>
       <div class="hero-visual">
         <div class="swatch-stage" aria-labelledby="stageName">
-          <div class="stage-img" id="stageImg" role="img" aria-label="Ecosilk shopping bag in the selected colour"></div>
+          <div class="stage-wrap"><div class="stage-img" id="stageImg" role="img" aria-label="Ecosilk shopping bag in the selected colour"></div></div>
           <div class="stage-row">
             <div><span class="small muted">Shopping Bag</span><div class="name" id="stageName">Sea Green</div></div>
             <div style="display:flex;gap:var(--space-3);align-items:center;">
@@ -224,7 +224,7 @@
 
   // Reef collection (4 packs)
   const packs = cards.filter(c => c.type === "pack" && c.product.inStock && /Leopard|Anemone|Octopus|Turtle/i.test(c.product.name)).slice(0, 4);
-  document.getElementById("reefGrid").innerHTML = packs.map(c => { const p = c.product; return `<article class="reef-card"><div class="photo" style="background-image:url('${p.image}')" role="img" aria-label="${E.altFor(p)}"></div><div class="tag"><img src="assets/img/logo-icon-t.png" alt="" width="20" height="20">Reef Collection</div><div class="body"><a href="${E.productUrl(p)}">${p.name.replace(/\s*-\s*Pack of \d+/i, "").replace(/Shoulder Bags? |Shopping Bags? /i, "")}</a><span class="price">${E.money(p.price)}</span></div></article>`; }).join("");
+  document.getElementById("reefGrid").innerHTML = packs.map(c => { const p = c.product; return `<article class="reef-card"><div class="photo" style="background-image:url('${p.image}')" role="img" aria-label="${E.altFor(p)}"></div><div class="tag"><img src="assets/img/logo-icon-t.png" alt="" width="20" height="20">Reef Collection</div><div class="body"><a href="${E.productUrl(p)}">${E.packInfo(p).theme}<small style="display:block;font-weight:500;opacity:.75;font-size:var(--text-xs);">${E.packInfo(p).kind}</small></a><span class="price">${E.money(p.price)}</span></div></article>`; }).join("");
 
   // Impact counter: ~ bags sold estimate × 1,000, animated once
   const el = document.getElementById("impactNumber"); const target = 1000; let started = false;

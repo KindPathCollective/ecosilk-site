@@ -82,7 +82,7 @@
     const skus = (r.products || []).map(s => E.bySku(s)).filter(Boolean).slice(0, 4);
     if (skus.length) {
       const wrap = document.createElement("div"); wrap.className = "msg-products";
-      wrap.innerHTML = skus.map(p => `<div class="mini-product"><img src="${p.image}" alt="${E.altFor(p)}" width="56" height="56"><div class="t"><a href="${E.productUrl(p)}">${E.isPack(p) ? p.name : E.shortName(p.category)}</a><small>${E.isPack(p) ? "Reef pack" : p.color} · ${E.money(p.price)}</small></div>${p.inStock ? `<button class="btn btn-dark" type="button" data-add="${p.sku}">Add</button>` : `<span class="small muted">Out</span>`}</div>`).join("");
+      wrap.innerHTML = skus.map(p => `<div class="mini-product"><img src="${p.image}" alt="${E.altFor(p)}" width="56" height="56"><div class="t"><a href="${E.productUrl(p)}">${E.isPack(p) ? E.packInfo(p).theme + " · " + E.packInfo(p).kind : E.shortName(p.category)}</a><small>${E.isPack(p) ? E.packInfo(p).kind : p.color} · ${E.money(p.price)}</small></div>${p.inStock ? `<button class="btn btn-dark" type="button" data-add="${p.sku}">Add</button>` : `<span class="small muted">Out</span>`}</div>`).join("");
       log.appendChild(wrap);
     }
     (r.actions || []).forEach(a => { if (a.type === "add_to_cart" && E.bySku(a.sku)) { E.addToCart(a.sku, a.qty || 1); E.toast(`${E.displayTitle(E.bySku(a.sku))} added to your bag`, { href: "cart.html", label: "View bag" }); } if (a.type === "apply_code") { E.applyPromo(a.code); } });

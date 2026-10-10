@@ -104,6 +104,9 @@
   // Stock box default from catalog flags
   document.getElementById("stockBox").value=E.CATALOG.filter(p=>!p.inStock).map(p=>`${p.sku} 0`).join("\n")+"\n# add lines like: SSE 12  (SKU then quantity)";
 
+  // Tiny markdown renderer for AI drafts (headings, bold, bullets)
+  const esc=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  function md(t){ return esc(t).split(/\n/).map(l=>{ if(/^#{1,3}\s/.test(l)) return `<strong style="display:block;margin-top:.6em;">${l.replace(/^#+\s/,"")}</strong>`; if(/^\s*[-*]\s/.test(l)) return `<span style="display:block;padding-left:1em;">• ${l.replace(/^\s*[-*]\s/,"")}</span>`; return l?`<span style="display:block;">${l}</span>`:"<span style='display:block;height:.5em'></span>"; }).join("").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>"); }
   // AI helpers
   const A=window.EcosilkAssistant; const st=document.getElementById("aiStatus"); const out=document.getElementById("aiOut");
   if(A&&A.available()){ fetch(CFG.ASSISTANT_ENDPOINT+"/health").then(r=>r.json()).then(j=>{ st.textContent=`online · ${j.provider}${j.model?" · "+j.model:""}`; st.className="status-pill ok"; }).catch(()=>{ st.textContent="unreachable"; st.className="status-pill bad"; }); }
@@ -112,7 +115,7 @@
     const orders=allOrders(); if(!orders.length){ out.textContent="No orders to analyse yet — place a test order first."; return; }
     out.innerHTML='<span class="typing" aria-label="Working"><i></i><i></i><i></i></span>'; document.querySelectorAll("[data-digest]").forEach(x=>x.disabled=true);
     const stock=document.getElementById("stockBox").value.split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#")).map(l=>{ const [sku,qty]=l.split(/\s+/); const p=E.bySku(sku); return p?{sku,name:E.displayTitle(p),qty:+qty||0}:null; }).filter(Boolean);
-    try{ const r=await A.call("/digest",{type:b.dataset.digest,orders:orders.slice(0,100),stock,period:"trial"}); out.textContent=r.digest||r.error||"No response."; }
+    try{ const r=await A.call("/digest",{type:b.dataset.digest,orders:orders.slice(0,100),stock,period:"trial"}); out.innerHTML=md(r.digest||r.error||"No response."); }
     catch(e){ out.textContent="The worker didn't respond: "+e.message; }
     document.querySelectorAll("[data-digest]").forEach(x=>x.disabled=false);
   }));

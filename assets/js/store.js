@@ -99,8 +99,19 @@
     }
     return out;
   }
-  function packName(p) { return p.name.replace(/\s*-\s*Pack of \d+/i, "").replace(/ Pack of \d+/i, "").replace(/^(Shopping|Shoulder|Fruit.*?)Bags?\s*/i, "").replace(/\s+\d+ ?Pack$/i, "").trim() || p.name; }
-  function displayTitle(p) { return isPack(p) ? p.name : `${shortName(p.category)} — ${p.color}`; }
+  const REEF_SPECIES = /leopard shark|anemone|octopus|crab|crown of thorns|jellyfish|clownfish|seahorse|starfish|turtle|coral|shoal|clam|dolphin|humpback whale|sea lion|reef|ocean|island/i;
+  function titleCase(str) { return String(str || "").toLowerCase().replace(/\b([a-z])/g, m => m.toUpperCase()).replace(/\bOf\b/g, "of"); }
+  // Packs are named like "SHOPPING BAGS 4 PACK TURTLE" or "FRUIT & VEGIE BAGS PACK OF 6 - WINTER"
+  function packInfo(p) {
+    const n = String(p.name || "").replace(/\s*-\s*/g, " ").replace(/\s+/g, " ").trim();
+    const m = n.match(/^(SHOPPING BAGS|SHOULDER BAGS|FRUIT & VEGIE BAGS)\s+(?:PACK OF\s+(\d+)|(\d+)\s+PACK)\s*(.*)$/i);
+    if (!m) return { theme: titleCase(n), kind: shortName(p.category), size: "", isReef: REEF_SPECIES.test(n) };
+    const size = m[2] || m[3]; const theme = titleCase(m[4] || "Pack");
+    const base = /shoulder/i.test(m[1]) ? "Shoulder bags" : /fruit/i.test(m[1]) ? "Fruit & vegie bags" : "Shopping bags";
+    return { theme, kind: `${base} · pack of ${size}`, size, isReef: REEF_SPECIES.test(theme) };
+  }
+  function packName(p) { return packInfo(p).theme; }
+  function displayTitle(p) { if (isPack(p)) { const i = packInfo(p); return `${i.theme} · ${i.kind}`; } return p.color ? `${shortName(p.category)} — ${p.color}` : shortName(p.category); }
   function colourSwatchStyle(p) { return `background-image:url('${p.image}')`; }
   function money(n) { return "$" + (Math.round(n * 100) / 100).toFixed(2); }
   function productUrl(p) { return `product.html?sku=${encodeURIComponent(p.sku)}`; }
@@ -186,7 +197,7 @@
     const rule = code ? CFG.DISCOUNT_CODES[code] : null;
     let discount = 0, shippingOverride = null;
     if (rule) {
-      if (rule.type === "percent") discount = Math.round(subtotal * rule.value) / 100;
+      if (rule.type === "percent") discount = Math.round((subtotal - volumeDiscount) * rule.value) / 100; // percent codes apply after the mix & match saving
       if (rule.type === "fixed") discount = Math.min(subtotal, rule.value);
       if (rule.type === "shipping") shippingOverride = 0;
     }
@@ -272,7 +283,7 @@
   }
 
   window.Ecosilk = {
-    CFG, CATALOG, Storage, decode, shortName, content, bySku, byCategory, categories, isPack, familyOf, siblings, representative, cards, packName, displayTitle, colourSwatchStyle, money, productUrl, altFor, rating, GROUPS,
+    CFG, CATALOG, Storage, decode, shortName, content, bySku, byCategory, categories, isPack, familyOf, siblings, representative, cards, packName, packInfo, titleCase, displayTitle, colourSwatchStyle, money, productUrl, altFor, rating, GROUPS,
     getCart, saveCart, onCartChange, addToCart, setQty, removeFromCart, clearCart, cartCount,
     getPromo, applyPromo, clearPromo, computeTotals,
     newOrderNumber, saveOrder, getOrders, getLastOrder, getCustomer, saveCustomer,

@@ -37,7 +37,7 @@ BUSINESS FACTS
 CATALOG (sku | name | price | in stock)
 ${CATALOG_SUMMARY}
 
-RESPONSE FORMAT — return ONLY a JSON object:
+RESPONSE FORMAT — return ONLY a single JSON object and nothing else (no prose before or after it):
 {"reply": string (plain text, paragraphs separated by blank lines, bullets with "- "),
  "products": [up to 4 SKUs to show as cards, most relevant first],
  "actions": [ {"type":"add_to_cart","sku":"...","qty":1} ] (ONLY when the user clearly asks to add something; otherwise []),
@@ -61,7 +61,8 @@ async function chat(env, system, messages, { json = false, maxTokens = 900 } = {
     });
     if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`);
     const data = await res.json();
-    return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    return text;
   }
   // OpenAI Responses API
   const base = (env.AI_BASE_URL || "https://api.openai.com").replace(/\/$/, "");
@@ -75,8 +76,16 @@ async function chat(env, system, messages, { json = false, maxTokens = 900 } = {
 }
 
 function parseJson(text) {
+  text = String(text || "").trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
   try { return JSON.parse(text); } catch (e) {}
-  const m = text.match(/\{[\s\S]*\}/); if (m) { try { return JSON.parse(m[0]); } catch (e) {} }
+  // Find the first object that contains a "reply" key and parse up to its balanced closing brace
+  const start = text.search(/\{\s*"reply"/); if (start < 0) return null;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inStr) { if (esc) esc = false; else if (ch === "\\") esc = true; else if (ch === '"') inStr = false; continue; }
+    if (ch === '"') inStr = true; else if (ch === "{") depth++; else if (ch === "}") { depth--; if (depth === 0) { try { return JSON.parse(text.slice(start, i + 1)); } catch (e) { return null; } } }
+  }
   return null;
 }
 
@@ -87,8 +96,8 @@ async function handleAssistant(env, body) {
   const ctx = body.context || {};
   const ctxText = `CONTEXT: page=${ctx.page || "?"}${ctx.sku ? `, viewing SKU ${ctx.sku}` : ""}; cart=${(ctx.cart || []).map(l => `${l.qty}×${l.name}`).join(", ") || "empty"}; cartTotal=$${Number(ctx.cartTotal || 0).toFixed(2)}`;
   const convo = [...messages.slice(0, -1), { role: "user", content: `${ctxText}\n\nUSER: ${messages[messages.length - 1].content}` }];
-  const raw = await chat(env, SYSTEM_ASSISTANT, convo, { json: true, maxTokens: 700 });
-  const parsed = parseJson(raw) || { reply: raw };
+  const raw = await chat(env, SYSTEM_ASSISTANT, convo, { json: true, maxTokens: 1200 });
+  const parsed = parseJson(raw) || { reply: raw.replace(/\{\s*"reply"[\s\S]*$/, "").trim() || raw };
   const valid = new Set(Object.keys(PRODUCT_INDEX));
   return {
     reply: String(parsed.reply || "").trim(),

@@ -9,7 +9,17 @@ import { handleRequest } from "../worker/src/index.js";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const port = Number(process.argv[2] || process.env.PORT || 8787);
 const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".xml": "application/xml", ".txt": "text/plain", ".webp": "image/webp", ".woff2": "font/woff2" };
-const env = { AI_PROVIDER: process.env.AI_PROVIDER, AI_API_KEY: process.env.AI_API_KEY, AI_MODEL: process.env.AI_MODEL, AI_BASE_URL: process.env.AI_BASE_URL, AI_EXTRA_HEADERS: process.env.AI_EXTRA_HEADERS, ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || "*" };
+// Explicit AI_* vars win; otherwise fall back to whatever provider credentials the environment offers.
+const P = process.env;
+const provider = P.AI_PROVIDER || (P.ANTHROPIC_API_KEY ? "anthropic" : "openai");
+const env = {
+  AI_PROVIDER: provider,
+  AI_API_KEY: P.AI_API_KEY || (provider === "anthropic" ? P.ANTHROPIC_API_KEY : P.OPENAI_API_KEY),
+  AI_MODEL: P.AI_MODEL || (provider === "anthropic" ? (P.ANTHROPIC_BASE_URL ? "claude_sonnet_5_5" : "claude-sonnet-4-5") : (P.OPENAI_BASE_URL ? "gpt_5_1" : "gpt-4.1-mini")),
+  AI_BASE_URL: P.AI_BASE_URL || (provider === "anthropic" ? P.ANTHROPIC_BASE_URL : P.OPENAI_BASE_URL),
+  AI_EXTRA_HEADERS: P.AI_EXTRA_HEADERS,
+  ALLOWED_ORIGINS: P.ALLOWED_ORIGINS || "*"
+};
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);

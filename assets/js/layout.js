@@ -158,12 +158,13 @@
     opts = opts || {};
     const p = card.product; const c = E.content(card.category) || {};
     const rt = E.rating(p);
-    const title = card.type === "family" ? E.shortName(card.category) : p.name;
-    const meta = card.type === "family" ? `${card.colours.filter(x => x.inStock).length} colours` : (c.tagline || "Themed colour pack");
+    const pi = card.type === "pack" ? E.packInfo(p) : null;
+    const title = card.type === "family" ? E.shortName(card.category) : pi.theme;
+    const meta = card.type === "family" ? `${card.colours.filter(x => x.inStock).length} colours` : pi.kind;
     const dots = card.type === "family" ? `<div class="colour-dots" aria-hidden="true">${card.colours.slice(0, 6).map(x => `<span style="${E.colourSwatchStyle(x)}"></span>`).join("")}${card.colours.length > 6 ? `<em>+${card.colours.length - 6}</em>` : ""}</div>` : "";
     const badges = [];
     if (opts.badge) badges.push(`<span class="badge">${opts.badge}</span>`);
-    if (card.type === "pack") badges.push(`<span class="badge badge-ink">Reef Collection</span>`);
+    if (card.type === "pack" && pi.isReef) badges.push(`<span class="badge badge-ink">Reef Collection</span>`);
     if (p.proposed) badges.push(`<span class="badge badge-accent">New idea</span>`);
     if (!p.inStock) badges.push(`<span class="badge badge-green">Back soon</span>`);
     return `
@@ -177,7 +178,7 @@
     ${CFG.SHOW_SAMPLE_RATINGS ? `<div class="rating" aria-label="Rated ${rt.r} out of 5 from ${rt.n} reviews"><span class="stars" aria-hidden="true">★★★★★</span> ${rt.r} <span class="muted">(${rt.n})</span></div>` : ""}
     <div class="price-row">
       <span class="price">${card.type === "family" ? E.money(p.price) : E.money(p.price)}</span>
-      ${card.type === "pack" && p.inStock ? `<button class="btn btn-sm btn-outline quick-add" type="button" data-add="${p.sku}" aria-label="Add ${p.name} to bag">Add</button>` : `<span class="small muted">${card.type === "family" ? "Choose colour" : ""}</span>`}
+      ${card.type === "pack" && p.inStock ? `<button class="btn btn-sm btn-outline quick-add" type="button" data-add="${p.sku}" aria-label="Add ${E.displayTitle(p)} to bag">Add</button>` : `<span class="small muted">${card.type === "family" ? "Choose colour" : ""}</span>`}
     </div>
   </div>
 </article>`;

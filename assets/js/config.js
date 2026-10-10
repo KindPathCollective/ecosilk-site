@@ -73,3 +73,9 @@ window.ECOSILK_CONFIG = {
   // Public URL once DNS is pointed (used for canonical/OG tags and the sitemap)
   SITE_URL: "https://kindpathcollective.github.io/ecosilk-site"
 };
+
+// Local development: `node server/dev-server.mjs` serves the site and proxies /api to the worker code,
+// so the AI helpers work without deploying anything.
+if (!window.ECOSILK_CONFIG.ASSISTANT_ENDPOINT && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+  window.ECOSILK_CONFIG.ASSISTANT_ENDPOINT = "/api";
+}

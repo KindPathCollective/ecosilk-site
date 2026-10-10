@@ -85,6 +85,7 @@
   const E = window.Ecosilk; const CFG = E.CFG;
   const params = new URLSearchParams(location.search);
   let p = E.bySku(params.get("sku")) || E.representative("Ecosilk Environmentally Friendly Shopping Bag");
+  if (p && p.color == null) p.color = "";
   const sib = E.siblings(p);
   const c = E.content(p.category) || {};
   const isPack = E.isPack(p);
@@ -103,13 +104,13 @@
 
   function setProduct(np, focus) {
     p = np;
-    const title = isPack ? p.name : `${E.shortName(p.category)}`;
-    document.title = `${isPack ? p.name : `${E.shortName(p.category)} – ${p.color}`} | Ecosilk Bags`;
+    const title = isPack ? `${E.packInfo(p).theme} — ${E.packInfo(p).kind}` : `${E.shortName(p.category)}`;
+    document.title = `${isPack ? E.displayTitle(p) : `${E.shortName(p.category)}${p.color ? " – " + p.color : ""}`} | Ecosilk Bags`;
     document.getElementById("metaDesc").content = c.seoDescription || document.getElementById("metaDesc").content;
     document.getElementById("title").textContent = title;
     document.getElementById("price").textContent = E.money(p.price);
     document.getElementById("stickyPrice").textContent = E.money(p.price);
-    document.getElementById("stickyName").textContent = isPack ? p.name : `${E.shortName(p.category)} · ${p.color}`;
+    document.getElementById("stickyName").textContent = isPack ? E.displayTitle(p) : `${E.shortName(p.category)}${p.color ? " · " + p.color : ""}`;
     const img = document.getElementById("mainImg"); img.src = p.image; img.alt = E.altFor(p);
     document.getElementById("colourName").textContent = isPack ? "" : p.color;
     const sn = document.getElementById("stockNote");
@@ -119,7 +120,7 @@
     document.querySelectorAll("#swatches .sw").forEach(b => { const on = b.dataset.sku === p.sku; b.setAttribute("aria-checked", String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
     document.querySelectorAll("#thumbs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sku === p.sku)));
     history.replaceState(null, "", `product.html?sku=${encodeURIComponent(p.sku)}`);
-    document.getElementById("ldjson").textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: isPack ? p.name : `${E.shortName(p.category)} – ${p.color}`, image: p.image, description: c.intro || "", sku: p.sku, brand: { "@type": "Brand", name: "Ecosilk Bags" }, color: p.color, offers: { "@type": "Offer", priceCurrency: "AUD", price: p.price.toFixed(2), availability: p.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", itemCondition: "https://schema.org/NewCondition", shippingDetails: { "@type": "OfferShippingDetails", shippingRate: { "@type": "MonetaryAmount", value: CFG.SHIPPING_FLAT, currency: "AUD" }, shippingDestination: { "@type": "DefinedRegion", addressCountry: "AU" } } } });
+    document.getElementById("ldjson").textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: isPack ? E.displayTitle(p) : `${E.shortName(p.category)}${p.color ? " – " + p.color : ""}`, image: p.image, description: c.intro || "", sku: p.sku, brand: { "@type": "Brand", name: "Ecosilk Bags" }, color: p.color, offers: { "@type": "Offer", priceCurrency: "AUD", price: p.price.toFixed(2), availability: p.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", itemCondition: "https://schema.org/NewCondition", shippingDetails: { "@type": "OfferShippingDetails", shippingRate: { "@type": "MonetaryAmount", value: CFG.SHIPPING_FLAT, currency: "AUD" }, shippingDestination: { "@type": "DefinedRegion", addressCountry: "AU" } } } });
     E.track("view_item", { currency: "AUD", value: p.price, items: [{ item_id: p.sku, item_name: E.displayTitle(p), price: p.price }] });
   }
 

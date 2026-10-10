@@ -1,72 +1,91 @@
-# Ecosilk — Website R&D Prototype
+# Ecosilk Bags — trial store
 
-This is a real, working static site — not a mockup. Every product, price, and
-image is pulled from Ecosilk's actual live catalog (131 SKUs). It's built to
-deploy on GitHub Pages, matching how idreamwithtristina.com.au runs.
+A fresh, accessible, static storefront for [Ecosilk Bags](https://www.ecosilkbags.com.au) built to run as a
+**dummy site** alongside the current WordPress store, so the full order process can be tested end to end
+before switching over.
 
-## What's actually working right now
-- Browse the full catalog (`shop.html`), filter by category
-- Product pages with colour-family switching (`product.html?sku=...`)
-- A real cart that persists across pages (localStorage) — add items, adjust
-  quantities, see a running total (`cart.html`)
-- Fully responsive, mobile-first
+Live trial: https://kindpathcollective.github.io/ecosilk-site/ (GitHub Pages, `main` branch)
 
-## What's NOT wired yet (on purpose — needs real decisions first)
-1. **Checkout / payment.** `cart.html` has a placeholder where PayPal's Smart
-   Buttons need to go. Once there's a real PayPal Business account (sandbox
-   first — see the earlier conversation about testing safely):
-   ```html
-   <script src="https://www.paypal.com/sdk/js?client-id=YOUR_SANDBOX_CLIENT_ID&currency=AUD"></script>
-   <script>
-     paypal.Buttons({
-       createOrder: (data, actions) => actions.order.create({
-         purchase_units: [{ amount: { value: cartTotal().toFixed(2) } }]
-       }),
-       onApprove: (data, actions) => actions.order.capture()
-     }).render('#paypal-button-container');
-   </script>
-   ```
-   The PayPal webhook then needs to point at the Apps Script order-receiver
-   we scaffolded earlier, so orders land in the Inventory/Orders sheet.
+## What's in the box
 
-2. **Images.** Currently hot-linking Emily's existing product photos directly
-   from the live WooCommerce site — fine for this prototype, not fine to ship.
-   Before going live: either re-shoot, or properly export/host the existing
-   images (and get Sam & Tris's own edited originals into the mix where they
-   have them).
+| Area | Where | Notes |
+| --- | --- | --- |
+| Storefront pages | `index.html`, `shop.html`, `product.html`, `cart.html`, `checkout.html`, `thank-you.html` | Multi-step checkout with PayPal Buttons (sandbox by default), promo codes, mix & match discount, free-gift rule, free-shipping progress |
+| Content pages | `about.html`, `faq.html`, `contact.html`, `wholesale.html`, `stockists.html`, `policies.html`, `404.html` | FAQ & Product JSON-LD, sitemap, robots |
+| Staff dashboard | `admin.html` | Launch checklist, orders seen in this browser, Formspree CSV import, funnel events, AI back-office helpers |
+| Catalog | `assets/js/catalog-data.js` | 131 real SKUs from the WordPress store + 1 flagged "proposed" product (Travel Pouch 3-Pack) |
+| Config | `assets/js/config.js` | Everything you need to change is here — see below |
+| Store logic | `assets/js/store.js`, `layout.js`, `assistant.js`, `content.js` | No build step, no framework |
+| AI worker | `worker/` | Cloudflare Worker: shopping assistant, thank-you notes, weekly digest / low-stock / packing / email drafts |
+| Local dev server | `server/dev-server.mjs` | Serves the site and runs the worker code at `/api` so AI features work locally |
 
-3. **Content gaps** — these are placeholders, not real copy:
-   - Newsletter signup doesn't actually submit anywhere yet
-   - `contact.html`'s form needs a real Formspree endpoint ID (same free,
-     no-backend pattern as iDream)
-   - No real blog/journal yet
-   - Only 24 shopping-bag colours got the "family switcher" treatment for this
-     pass; drawstring bags, mini drawstring, and shoulder beach bags share the
-     same data structure and just need the same category wired into a page.
+## Configure before launch (`assets/js/config.js`)
 
-4. **Stock quantity.** WooCommerce's public API only exposes in-stock/out-of-
-   stock, not real counts — the "Stock" field WooCommerce shows will need
-   Emily's actual backend before this is trustworthy at real order volume.
-
-## Deploying to GitHub Pages
-Same pattern as idreamwithtristina:
-1. Push this whole folder to the root of a GitHub repo
-2. Repo Settings → Pages → deploy from the main branch, root folder
-3. Once ecosilkbags.com.au's DNS is ready to point here (needs whoever holds
-   the registrar login — see the access-request email), add a `CNAME` file
-   containing just the domain, and set the custom domain in Pages settings
-
-## File structure
+```js
+TEST_MODE: true,            // false for launch — hides the "Place test order" button
+PAYPAL_CLIENT_ID: "sb",     // your PayPal SANDBOX client ID for testing, LIVE client ID at launch
+PAYPAL_ENV: "sandbox",      // "live" at launch
+FORMSPREE: { orders: "", newsletter: "", contact: "", wholesale: "" }, // Formspree form IDs (e.g. "xyzabcde")
+ASSISTANT_ENDPOINT: "",     // e.g. "https://ecosilk-ai.<account>.workers.dev" once the worker is deployed
+GA4_ID: "", META_PIXEL_ID: "",
+SHOW_SAMPLE_RATINGS: true,  // set false (or wire real reviews) before launch
 ```
-index.html        Homepage
-shop.html         Full catalog, filterable
-product.html      Product detail (?sku=XXX), colour switching for families
-cart.html         Cart + (placeholder) checkout
-about.html        Impact/mission — brand-led, not founder-led
-contact.html       Contact form
-assets/
-  style.css       Shared brand styles (playful v2 direction)
-  app.js          Cart logic + all rendering
-  catalog-data.js Real product data (131 SKUs) — regenerate from a fresh
-                  export whenever the real catalog changes
+
+Business rules (free shipping threshold, 3+ singles discount, discount codes, gift rule) live in the same file.
+
+### Formspree
+
+Create four forms at formspree.io (Orders, Newsletter, Contact, Wholesale) and paste each form's ID.
+Orders arrive as an email with every field plus an `order_json` column; export CSV from Formspree and
+paste it into the staff dashboard to analyse all orders together.
+
+### PayPal
+
+Testing: use a PayPal sandbox **business** app's client ID and pay with a sandbox **personal** account.
+Launch: swap to the live client ID and set `PAYPAL_ENV: "live"`, `TEST_MODE: false`.
+Payment capture happens client-side via PayPal Buttons; the order email records PayPal's capture ID.
+
+### AI worker (Cloudflare, free tier)
+
+```bash
+cd worker
+npm i -g wrangler && wrangler login
+wrangler secret put AI_API_KEY        # your OpenAI or Anthropic key
+# optional: wrangler secret put AI_PROVIDER (openai|anthropic), AI_MODEL, AI_BASE_URL
+wrangler deploy                       # prints https://ecosilk-ai.<account>.workers.dev
 ```
+
+Paste that URL into `ASSISTANT_ENDPOINT`. Set `ALLOWED_ORIGINS` in `worker/wrangler.toml` to your site's
+origin(s). Without the worker the site still works: the helper answers from the catalog/FAQ, and the
+thank-you note uses a static version.
+
+## Run locally
+
+```bash
+AI_PROVIDER=openai AI_API_KEY=sk-... node server/dev-server.mjs 8787
+# open http://127.0.0.1:8787
+```
+
+## Deploy
+
+Pushing to `main` publishes to GitHub Pages. No build step. `.nojekyll` is present so `_`-prefixed
+paths are served as-is.
+
+## Launch checklist
+
+The staff dashboard (`admin.html`) shows live status for each item:
+
+1. PayPal live client ID, `TEST_MODE: false`
+2. Four Formspree IDs
+3. Worker deployed and `ASSISTANT_ENDPOINT` set
+4. GA4 / Meta Pixel IDs (optional)
+5. Replace sample ratings with real reviews, or hide them
+6. Re-host product images (currently hot-linked from WordPress) before WordPress is switched off
+7. Confirm policy wording: free shipping over $75, 3+ singles save 10%, 30-day returns, 1–2 day dispatch
+8. Point `ecosilkbags.com.au` DNS at GitHub Pages and update `SITE_URL`
+
+## Accessibility
+
+Skip link, landmark regions, visible focus rings, WCAG AA colour contrast in both themes, keyboard-operable
+colour swatches (arrow keys), reduced-motion support, `aria-live` cart/toast announcements, labelled form
+fields with inline error messages, 44px+ touch targets.

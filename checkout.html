@@ -102,7 +102,7 @@
   // Summary
   function renderSummary() {
     totals = E.computeTotals();
-    document.getElementById("miniLines").innerHTML = totals.lines.map(l => `<div class="kv"><span>${l.qty} × ${E.isPack(l.product) ? l.product.name : E.shortName(l.product.category) + " · " + l.product.color}</span><span>${E.money(l.lineTotal)}</span></div>`).join("") + totals.gifts.map(g => `<div class="kv"><span>1 × ${E.shortName(g.product.category)} (free gift)</span><span>$0.00</span></div>`).join("");
+    document.getElementById("miniLines").innerHTML = totals.lines.map(l => `<div class="kv"><span>${l.qty} × ${E.isPack(l.product) ? E.displayTitle(l.product) : E.shortName(l.product.category) + " · " + l.product.color}</span><span>${E.money(l.lineTotal)}</span></div>`).join("") + totals.gifts.map(g => `<div class="kv"><span>1 × ${E.shortName(g.product.category)} (free gift)</span><span>$0.00</span></div>`).join("");
     document.getElementById("subtotal").textContent = E.money(totals.subtotal);
     const sav = totals.discount + totals.volumeDiscount; document.getElementById("savingsRow").hidden = sav <= 0; document.getElementById("savings").textContent = "−" + E.money(sav);
     document.getElementById("shipping").innerHTML = totals.shipping === 0 ? '<span class="free">Free</span>' : E.money(totals.shipping);

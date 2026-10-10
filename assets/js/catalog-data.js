@@ -1463,3 +1463,6 @@ const CATEGORY_DISPLAY = {
   'Mini Drawstring bags': 'Gift & Wrap Pouches',
 };
 function displayCategory(cat) { return CATEGORY_DISPLAY[cat] || cat; }
+
+// Expose for modules that read from window
+window.CATALOG = CATALOG; window.CATEGORY_DISPLAY = CATEGORY_DISPLAY;
