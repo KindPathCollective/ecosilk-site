@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Ecosilk Bags</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<main id="main">
+  <div class="wrap page-head"><h1>Checkout</h1><p>Guest checkout, three short steps. No account needed.</p></div>
+  <div class="wrap checkout-layout">
+    <section>
+      <ol class="steps" role="list" id="steps">
+        <li class="step" data-step="1" aria-current="step"><i>1</i> Delivery</li><li class="sep" aria-hidden="true"></li>
+        <li class="step" data-step="2"><i>2</i> Review</li><li class="sep" aria-hidden="true"></li>
+        <li class="step" data-step="3"><i>3</i> Pay</li>
+      </ol>
+
+      <!-- STEP 1 -->
+      <form class="panel" id="step1" novalidate>
+        <h2>Where should we send it?</h2>
+        <div class="form">
+          <div class="form-row">
+            <div class="field"><label for="firstName">First name</label><input id="firstName" name="firstName" autocomplete="given-name" required><span class="error">Please enter your first name.</span></div>
+            <div class="field"><label for="lastName">Last name</label><input id="lastName" name="lastName" autocomplete="family-name" required><span class="error">Please enter your last name.</span></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required><span class="hint">Order confirmation goes here.</span><span class="error">Please enter a valid email.</span></div>
+            <div class="field"><label for="phone">Mobile <span class="opt">(for delivery updates)</span></label><input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel"></div>
+          </div>
+          <div class="field"><label for="address1">Street address</label><input id="address1" name="address1" autocomplete="address-line1" required><span class="error">Please enter your street address.</span></div>
+          <div class="field"><label for="address2">Apartment, unit, PO Box <span class="opt">(optional)</span></label><input id="address2" name="address2" autocomplete="address-line2"></div>
+          <div class="form-row">
+            <div class="field"><label for="city">Suburb</label><input id="city" name="city" autocomplete="address-level2" required><span class="error">Please enter your suburb.</span></div>
+            <div class="form-row">
+              <div class="field"><label for="state">State</label><select id="state" name="state" autocomplete="address-level1" required><option value="">Select</option><option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option><option>WA</option><option>TAS</option><option>ACT</option><option>NT</option></select><span class="error">Select a state.</span></div>
+              <div class="field"><label for="postcode">Postcode</label><input id="postcode" name="postcode" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{4}" required><span class="error">4-digit postcode.</span></div>
+            </div>
+          </div>
+          <div class="field"><label for="notes">Order notes <span class="opt">(optional)</span></label><textarea id="notes" name="notes" placeholder="Colour preference for your free drawstring bag, delivery instructions, a gift message…"></textarea></div>
+          <label class="check"><input type="checkbox" id="gift" name="gift"> This is a gift — leave prices off the packing slip</label>
+          <label class="check"><input type="checkbox" id="optin" name="optin" checked> Email me about new colours and Reef Collection releases</label>
+          <div class="form-note">Shipping is a flat $<span data-ship></span> Australia-wide, free on orders over $<span data-free></span>. We ship from the Northern Rivers, NSW. International orders: <a href="contact.html">get in touch</a> for a quote.</div>
+          <button class="btn btn-primary btn-lg" type="submit">Continue to review</button>
+        </div>
+      </form>
+
+      <!-- STEP 2 -->
+      <div class="panel" id="step2" hidden>
+        <h2>Check everything's right</h2>
+        <div class="review-block" id="reviewBlock"></div>
+        <div class="buy-row" style="margin-top:var(--space-6);"><button class="btn btn-outline" type="button" data-goto="1">Back</button><button class="btn btn-primary btn-lg" type="button" data-goto="3">Continue to payment</button></div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="panel" id="step3" hidden>
+        <h2>Pay securely</h2>
+        <p class="muted small" style="margin-bottom:var(--space-5);">Pay with PayPal, or with a card through PayPal — no PayPal account needed. Your card details never touch our site.</p>
+        <div id="paypal-button-container" aria-live="polite"></div>
+        <p class="small muted" id="paypalStatus" style="margin-top:var(--space-3);"></p>
+        <div class="test-pay" id="testPay" hidden>
+          <h3>Dummy-run mode</h3>
+          <p class="small">This button places the order without taking payment, so you can test the full flow end to end: order email, thank-you page, AI note and the staff dashboard.</p>
+          <button class="btn btn-dark" type="button" id="testOrderBtn">Place test order (no payment)</button>
+        </div>
+        <div class="buy-row" style="margin-top:var(--space-6);"><button class="btn btn-outline" type="button" data-goto="2">Back</button></div>
+      </div>
+    </section>
+
+    <aside class="summary" aria-label="Order summary">
+      <h2>Your order</h2>
+      <div id="miniLines" class="review-block"></div>
+      <div class="row" style="margin-top:var(--space-3);"><span>Subtotal</span><span id="subtotal"></span></div>
+      <div class="row" id="savingsRow" hidden><span>Savings</span><span class="free" id="savings"></span></div>
+      <div class="row"><span>Shipping</span><span id="shipping"></span></div>
+      <div class="row total"><span>Total</span><span id="total"></span></div>
+      <div class="row small muted"><span>Includes GST</span><span id="gst"></span></div>
+      <a class="small" href="cart.html">Edit bag</a>
+    </aside>
+  </div>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script>
+(function () {
+  const E = window.Ecosilk; const CFG = E.CFG;
+  let totals = E.computeTotals();
+  if (!totals.lines.length) { location.replace("cart.html"); return; }
+  document.querySelectorAll("[data-ship]").forEach(el => el.textContent = CFG.SHIPPING_FLAT);
+  document.querySelectorAll("[data-free]").forEach(el => el.textContent = CFG.FREE_SHIPPING_THRESHOLD);
+
+  // Summary
+  function renderSummary() {
+    totals = E.computeTotals();
+    document.getElementById("miniLines").innerHTML = totals.lines.map(l => `<div class="kv"><span>${l.qty} × ${E.isPack(l.product) ? l.product.name : E.shortName(l.product.category) + " · " + l.product.color}</span><span>${E.money(l.lineTotal)}</span></div>`).join("") + totals.gifts.map(g => `<div class="kv"><span>1 × ${E.shortName(g.product.category)} (free gift)</span><span>$0.00</span></div>`).join("");
+    document.getElementById("subtotal").textContent = E.money(totals.subtotal);
+    const sav = totals.discount + totals.volumeDiscount; document.getElementById("savingsRow").hidden = sav <= 0; document.getElementById("savings").textContent = "−" + E.money(sav);
+    document.getElementById("shipping").innerHTML = totals.shipping === 0 ? '<span class="free">Free</span>' : E.money(totals.shipping);
+    document.getElementById("total").textContent = E.money(totals.total);
+    document.getElementById("gst").textContent = E.money(totals.gst);
+  }
+  renderSummary();
+
+  // Steps
+  const customer = E.getCustomer();
+  Object.keys(customer).forEach(k => { const el = document.getElementById(k); if (el && el.type !== "checkbox") el.value = customer[k]; });
+  function goto(n) {
+    [1, 2, 3].forEach(i => document.getElementById("step" + i).hidden = i !== n);
+    document.querySelectorAll(".steps .step").forEach(s => { const k = +s.dataset.step; s.classList.toggle("done", k < n); if (k === n) s.setAttribute("aria-current", "step"); else s.removeAttribute("aria-current"); });
+    document.getElementById("step" + n).querySelector("h2").setAttribute("tabindex", "-1"); document.getElementById("step" + n).querySelector("h2").focus();
+    if (n === 3) initPayment();
+    E.track("checkout_progress", { step: n });
+  }
+  document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => goto(+b.dataset.goto)));
+
+  function readForm() { const f = document.getElementById("step1"); const o = {}; ["firstName", "lastName", "email", "phone", "address1", "address2", "city", "state", "postcode", "notes"].forEach(k => o[k] = f.elements[k].value.trim()); o.gift = f.elements.gift.checked; o.optin = f.elements.optin.checked; return o; }
+  document.getElementById("step1").addEventListener("submit", e => {
+    e.preventDefault(); if (!E.validate(e.target)) return;
+    const c = readForm(); E.saveCustomer(c);
+    document.getElementById("reviewBlock").innerHTML = `
+      <div class="kv"><span>Deliver to</span><span>${c.firstName} ${c.lastName}<br>${c.address1}${c.address2 ? "<br>" + c.address2 : ""}<br>${c.city} ${c.state} ${c.postcode}</span></div>
+      <div class="kv"><span>Contact</span><span>${c.email}${c.phone ? "<br>" + c.phone : ""}</span></div>
+      <div class="kv"><span>Shipping</span><span>${totals.shipping === 0 ? "Free standard post" : "Standard post · " + E.money(totals.shipping)}</span></div>
+      ${c.notes ? `<div class="kv"><span>Notes</span><span>${c.notes.replace(/</g, "&lt;")}</span></div>` : ""}
+      ${c.gift ? `<div class="kv"><span>Gift</span><span>Prices left off the packing slip</span></div>` : ""}
+      <a class="edit" href="#" data-goto="1">Edit details</a>`;
+    document.getElementById("reviewBlock").querySelector("[data-goto]").addEventListener("click", ev => { ev.preventDefault(); goto(1); });
+    E.track("add_shipping_info", { currency: "AUD", value: totals.total });
+    goto(2);
+  });
+
+  // Order completion
+  async function completeOrder(payment) {
+    const c = readForm();
+    const order = {
+      number: E.newOrderNumber(), placedAt: new Date().toISOString(), status: payment.status,
+      payment, customer: c,
+      lines: totals.lines.map(l => ({ sku: l.sku, name: E.displayTitle(l.product), category: E.shortName(l.product.category), colour: l.product.color, qty: l.qty, unit: l.product.price, total: l.lineTotal })),
+      gifts: totals.gifts.map(g => ({ sku: g.sku, name: E.displayTitle(g.product), label: g.label })),
+      subtotal: totals.subtotal, volumeDiscount: totals.volumeDiscount, discount: totals.discount, code: totals.code || "", shipping: totals.shipping, gst: totals.gst, total: totals.total, currency: CFG.CURRENCY,
+      testMode: payment.status !== "PAID"
+    };
+    E.saveOrder(order);
+    const lineText = order.lines.map(l => `${l.qty} × ${l.name} @ ${E.money(l.unit)} = ${E.money(l.total)}`).join("\n") + (order.gifts.length ? "\n" + order.gifts.map(g => `1 × ${g.name} (FREE — ${g.label})`).join("\n") : "");
+    const res = await E.submitForm("orders", {
+      _subject: `${order.testMode ? "[TEST] " : ""}New Ecosilk order ${order.number} — ${E.money(order.total)}`,
+      _replyto: c.email,
+      order_number: order.number, status: order.status, payment_id: payment.id || "", payment_method: payment.method,
+      customer_name: `${c.firstName} ${c.lastName}`, email: c.email, phone: c.phone,
+      address: `${c.address1}${c.address2 ? ", " + c.address2 : ""}, ${c.city} ${c.state} ${c.postcode}`,
+      items: lineText, subtotal: E.money(order.subtotal), savings: E.money(order.discount + order.volumeDiscount), discount_code: order.code, shipping: E.money(order.shipping), gst_included: E.money(order.gst), total: E.money(order.total),
+      notes: c.notes, gift: c.gift ? "yes" : "no", marketing_optin: c.optin ? "yes" : "no", order_json: JSON.stringify(order)
+    });
+    order.delivery = res;
+    E.saveOrder(order); // update with delivery status (dedupe by number on the admin page)
+    E.track("purchase", { transaction_id: order.number, currency: "AUD", value: order.total, shipping: order.shipping, coupon: order.code, items: order.lines.map(l => ({ item_id: l.sku, item_name: l.name, quantity: l.qty, price: l.unit })) });
+    if (c.optin) E.submitForm("newsletter", { email: c.email, source: "checkout", _subject: "New Ecosilk subscriber (checkout)" });
+    E.clearCart(); E.clearPromo();
+    location.href = "thank-you.html";
+  }
+
+  // Payment init
+  let paypalLoaded = false;
+  function initPayment() {
+    document.getElementById("testPay").hidden = !CFG.TEST_MODE;
+    const status = document.getElementById("paypalStatus");
+    if (paypalLoaded) return; paypalLoaded = true;
+    if (!CFG.PAYPAL_CLIENT_ID) { status.textContent = "PayPal isn't configured yet (set PAYPAL_CLIENT_ID in config.js)."; return; }
+    status.textContent = "Loading PayPal…";
+    const s = document.createElement("script");
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(CFG.PAYPAL_CLIENT_ID)}&currency=${CFG.CURRENCY}&intent=capture&components=buttons&enable-funding=paylater,card`;
+    s.async = true;
+    s.onload = () => {
+      status.textContent = CFG.PAYPAL_ENV === "sandbox" ? "PayPal sandbox — use a sandbox buyer account, no real money moves." : "";
+      const c = () => readForm();
+      window.paypal.Buttons({
+        style: { layout: "vertical", shape: "pill", color: "black", label: "paypal", height: 48 },
+        createOrder: (data, actions) => {
+          totals = E.computeTotals(); const cust = c();
+          return actions.order.create({
+            purchase_units: [{
+              description: `Ecosilk Bags order (${totals.count} items)`,
+              amount: { currency_code: CFG.CURRENCY, value: totals.total.toFixed(2), breakdown: { item_total: { currency_code: CFG.CURRENCY, value: totals.subtotal.toFixed(2) }, shipping: { currency_code: CFG.CURRENCY, value: totals.shipping.toFixed(2) }, discount: { currency_code: CFG.CURRENCY, value: (totals.discount + totals.volumeDiscount).toFixed(2) } } },
+              items: totals.lines.map(l => ({ name: E.displayTitle(l.product).slice(0, 120), sku: l.sku, unit_amount: { currency_code: CFG.CURRENCY, value: l.product.price.toFixed(2) }, quantity: String(l.qty), category: "PHYSICAL_GOODS" })),
+              shipping: { name: { full_name: `${cust.firstName} ${cust.lastName}` }, address: { address_line_1: cust.address1, address_line_2: cust.address2 || undefined, admin_area_2: cust.city, admin_area_1: cust.state, postal_code: cust.postcode, country_code: "AU" } }
+            }],
+            application_context: { shipping_preference: "SET_PROVIDED_ADDRESS", brand_name: "Ecosilk Bags" }
+          });
+        },
+        onApprove: async (data, actions) => {
+          status.textContent = "Confirming payment…";
+          const details = await actions.order.capture();
+          await completeOrder({ method: "paypal", status: "PAID", id: details.id, payer: details.payer && details.payer.email_address, env: CFG.PAYPAL_ENV });
+        },
+        onError: err => { status.textContent = "PayPal couldn't start. You can still place a test order below while we sort it out."; console.error(err); document.getElementById("testPay").hidden = false; },
+        onCancel: () => { status.textContent = "Payment cancelled — nothing was charged."; }
+      }).render("#paypal-button-container").catch(err => { status.textContent = "PayPal buttons couldn't render in this preview. Use the test order button below."; document.getElementById("testPay").hidden = false; });
+    };
+    s.onerror = () => { status.textContent = "PayPal couldn't load here (often blocked in previews). Use the test order button below."; document.getElementById("testPay").hidden = false; };
+    document.head.appendChild(s);
+  }
+  document.getElementById("testOrderBtn").addEventListener("click", async e => {
+    e.target.disabled = true; e.target.textContent = "Placing test order…";
+    await completeOrder({ method: "test", status: "TEST", id: "TEST-" + Date.now() });
+  });
+})();
+</script>
+</body>
+</html>

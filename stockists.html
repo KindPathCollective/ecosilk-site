@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stockists — Ecosilk Bags</title>
+<meta name="description" content="Find Ecosilk bags near you: health food stores, post offices and gift shops across Australia and overseas.">
+
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<main id="main">
+
+  <div class="wrap page-head"><span class="eyebrow">Stockists</span><h1>Find Ecosilk near you</h1><p>Prefer to feel the fabric first? These shops carry the range. Call ahead for colours — stock varies. Want to stock Ecosilk? <a href="wholesale.html">Start here</a>.</p>
+  <div class="inline-form" style="margin-top:var(--space-6);max-width:520px;"><label class="visually-hidden" for="stockSearch">Search by town or shop</label><input id="stockSearch" type="search" placeholder="Search by town, state or shop name"></div></div>
+  <div class="wrap stockist-groups" id="groups" style="padding-bottom:var(--space-16);"></div>
+  <p class="wrap empty" id="noStock" hidden>No stockists match that search. Try a state, or <a href="shop.html">order online</a> with flat $10.95 shipping.</p>
+</main>
+<script>window.STOCKISTS = {"ACT": [["Griffith", "Mountain Creek Wholefoods"], ["Lyneham", "Lyneham Post Office"], ["Nicholls", "The Bower Birds"]], "NSW \u00b7 Sydney": [["McMahons Point", "Rapture Living"], ["Mortdale", "Mortdale Wholesalers"], ["Newport", "Newport Health Foods"], ["Newtown", "Bodhi Books & Gifts"]], "NSW \u00b7 Regional": [["Albury", "Border Just Foods"], ["Albury", "Olive Health Foods"], ["Ballina", "Go Vita Ballina"], ["Bathurst", "Bathurst Wholefood Co-op"], ["Bowral", "Country Accent"], ["Brunswick Heads", "Brunswick Heads Visitor Centre"], ["Byron Bay", "Fundamental Food Store"], ["Coffs Harbour", "First Fruits Wholefoods"], ["Coffs Harbour", "Go Vita Coffs Central"], ["Erina", "Go Vita Erina"], ["Grafton", "Go Vita Grafton"], ["Kyogle", "Kyogle Post Office"], ["Lismore", "Fundamental Foods"], ["Lismore", "Shoppe 117"], ["Lismore", "The Book Warehouse"], ["Lithgow", "The Natural Health Spot"], ["Mangrove Mountain", "Farmers & Artisans Market"], ["Nimbin", "Nimbin Post Office"], ["Nimbin", "The Green Bank"], ["Nundle", "Hanging Rock Landcare"], ["Orange", "Caboodle of Orange Gifts"], ["Springwood", "Go Vita Springwood"], ["Tamworth", "Honey Pot Health Foods"], ["Wingham", "Chapman & Wood Pharmacy"]], "Norfolk Island": [["Norfolk Island", "World Traders"]], "QLD": [["Atherton", "Atherton Health Food Centre"], ["Buddina", "Healthy Life Kawana"], ["Cranbrook", "Kids in Harmony"], ["Earlville", "Barr St Wholelife"], ["Garbutt", "Plant Essentials"], ["Hervey Bay", "Hervey Bay WholeLife"], ["Kenmore", "Kenmore Health & Nutrition"], ["Maleny", "Maple St Co:op"], ["Mareeba", "Essence Wholefood Supermarket"], ["Mirani", "Mirani Post Office"], ["Stones Corner", "New Dimensions"]], "SA": [["Strathalbyn", "The Old Market Shed"], ["Victor Harbor", "Mega Health Victor Harbour"]], "TAS": [["Hobart", "Teros Australia"]], "VIC": [["Bendigo", "Fountain Health Foods"], ["Riddells Creek", "Goosey Gander"], ["Sunbury", "An Apple A Day Natural Health"], ["Wangaratta", "Olive Health Foods"], ["Wonthaggi", "Foon's Photographics"]], "WA": [["Broome", "Kanagae Estate / The Mango Place"], ["Broome", "Broome Natural Wellness"], ["Bunbury", "Go Vita Bunbury"], ["Palmyra", "Feet First Podiatry"]], "International": [["Black Creek, BC, Canada", "Knight Inlet Lodge"], ["Courtenay, BC, Canada", "Edible Island Whole Foods Market"], ["Strathcona, BC, Canada", "Marnie's Books"], ["Tauranga, NZ", "Tauranga Knitting Centre"], ["Dumfries, Scotland", "Loch Arthur Camphill Community"], ["Hamden, USA", "Whitneyville Food Center"]]};</script>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
+
+<script>
+(function(){ const g=document.getElementById("groups"); const q=document.getElementById("stockSearch");
+ function render(){ const s=(q.value||"").toLowerCase(); let any=false;
+  g.innerHTML=Object.entries(window.STOCKISTS).map(([state,list])=>{ const items=list.filter(([town,shop])=>!s||(town+" "+shop+" "+state).toLowerCase().includes(s)); if(!items.length) return ""; any=true;
+   return `<section class="stockist-group"><h3>${state}</h3><ul role="list">${items.map(([town,shop])=>`<li><b>${shop}</b><br><span>${town}</span></li>`).join("")}</ul></section>`; }).join("");
+  document.getElementById("noStock").hidden=any; }
+ q.addEventListener("input",render); render(); })();
+</script>
+</body></html>

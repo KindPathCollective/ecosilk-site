@@ -1,40 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Product — Ecosilk</title>
+<title>Ecosilk Bags</title>
+<meta name="description" id="metaDesc" content="Ecosilk reusable bags made from 100% recyclable parachute-silk nylon.">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
-
-<nav>
-  <div class="navrow">
-    <div class="logo">ecosilk</div>
-    <div class="navlinks">
-      <a href="index.html">Home</a>
-      <a href="shop.html" class="active">Shop</a>
-      <a href="about.html">Impact</a>
-      <a href="contact.html">Contact</a>
+<body class="has-sticky-buy">
+<main id="main">
+  <div class="wrap pdp" id="pdp">
+    <div class="gallery">
+      <div class="gallery-main"><img id="mainImg" src="" alt="" width="800" height="800" decoding="async"></div>
+      <div class="gallery-thumbs" id="thumbs" aria-label="More colours"></div>
     </div>
-    <a href="cart.html" class="cart-pill" data-cart-count>Bag · 0</a>
+    <div class="pdp-info">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="shop.html">Shop</a> › <a id="crumbCat" href="shop.html">Category</a></nav>
+      <h1 id="title">Loading…</h1>
+      <p class="tagline" id="tagline"></p>
+      <div class="pdp-price"><span class="price" id="price"></span><span class="rating" id="rating"></span></div>
+      <p class="muted" id="intro"></p>
+
+      <div id="colourBlock">
+        <div class="option-label">Colour <span id="colourName"></span></div>
+        <div class="swatches" id="swatches" role="radiogroup" aria-label="Colour"></div>
+      </div>
+
+      <div class="buy-row">
+        <div class="qty" role="group" aria-label="Quantity">
+          <button type="button" id="qtyMinus" aria-label="Decrease quantity">−</button>
+          <input type="number" id="qty" value="1" min="1" max="50" inputmode="numeric" aria-label="Quantity">
+          <button type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
+        </div>
+        <button class="btn btn-primary btn-lg" type="button" id="addBtn">Add to bag</button>
+      </div>
+      <div class="stock-note" id="stockNote">In stock, ships from NSW in 1–2 business days</div>
+      <p class="small muted" id="shipHint" style="margin-top:var(--space-2);"></p>
+
+      <ul class="pdp-bullets" id="bullets" role="list"></ul>
+
+      <div class="accordion">
+        <details open><summary>Details &amp; care</summary><div class="body" id="details"></div></details>
+        <details><summary>Shipping &amp; returns</summary><div class="body"><p>Flat $10.95 shipping Australia-wide, free on orders of $75 or more. Orders leave our Northern Rivers base within 1–2 business days. Prices include GST.</p><p>Changed your mind? Return unused bags within 30 days for a refund. If a bag fails within its 5-year guarantee, we replace it.</p></div></details>
+        <details><summary>Our guarantee &amp; recycling</summary><div class="body"><p>Every Ecosilk shopping and shoulder bag is guaranteed for at least 5 years with daily or weekly use. When it's finally done, post it back to <span id="recycleAddr"></span> and the nylon is recycled.</p></div></details>
+        <details id="faqDetails"><summary>Common questions</summary><div class="body" id="faqBody"></div></details>
+      </div>
+    </div>
   </div>
-</nav>
 
-<div class="wrap" style="padding:50px 28px 90px;">
-  <div class="product-detail" id="productDetail"></div>
-</div>
+  <section class="section-tight" style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">Goes well with</span><h2 id="crossTitle">Complete the set</h2><p id="crossHint"></p></div></div>
+      <div class="rail" id="crossSell"></div>
+    </div>
+  </section>
 
-<footer>
-  Made in Australia since 2001. Prototype UI, R&amp;D build only — not the live site.
-</footer>
+  <section class="section-tight" id="reviewsSection">
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">Owners say</span><h2>Why people keep coming back</h2></div></div>
+      <div class="reviews">
+        <article class="review"><span class="stars" aria-label="5 stars">★★★★★</span><blockquote>"Strong enough for fruit and veg, pretty enough for everything else."</blockquote><div class="who"><b>Gaynor</b><span>Collingwood VIC</span></div></article>
+        <article class="review"><span class="stars" aria-label="5 stars">★★★★★</span><blockquote>"The colours, the strength, the pocket-ness. Best reusable bag we've tried, full stop."</blockquote><div class="who"><b>Lorna</b><span>Enmore NSW</span></div></article>
+        <article class="review"><span class="stars" aria-label="5 stars">★★★★★</span><blockquote>"Plastic bag free, every day, for years now."</blockquote><div class="who"><b>Judy</b><span>Kinglake West VIC</span></div></article>
+      </div>
+    </div>
+  </section>
 
-<script src="assets/catalog-data.js"></script>
-<script src="assets/app.js"></script>
+  <div class="sticky-buy" id="stickyBuy"><div><div class="small muted" id="stickyName"></div><span class="price" id="stickyPrice"></span></div><button class="btn btn-primary" type="button" id="stickyAdd">Add to bag</button></div>
+</main>
+
+<script type="application/ld+json" id="ldjson"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
 <script>
-  renderProductDetail(document.getElementById('productDetail'));
+(function () {
+  const E = window.Ecosilk; const CFG = E.CFG;
+  const params = new URLSearchParams(location.search);
+  let p = E.bySku(params.get("sku")) || E.representative("Ecosilk Environmentally Friendly Shopping Bag");
+  const sib = E.siblings(p);
+  const c = E.content(p.category) || {};
+  const isPack = E.isPack(p);
+
+  document.getElementById("recycleAddr").textContent = CFG.BUSINESS.recyclingAddress;
+  document.getElementById("crumbCat").textContent = E.shortName(p.category).replace(" · ", " ");
+  document.getElementById("crumbCat").href = `shop.html?cat=${encodeURIComponent(E.decode(p.category))}`;
+  document.getElementById("tagline").textContent = c.tagline || "";
+  document.getElementById("intro").textContent = c.intro || "";
+  document.getElementById("details").innerHTML = `<p>${c.details || "Made from 100% nylon parachute silk. Quick machine wash, line dry, cool iron only."}</p>${c.useCases ? `<p><strong>Good for:</strong> ${c.useCases.join(" · ")}</p>` : ""}`;
+  document.getElementById("bullets").innerHTML = (c.bullets || []).map(b => `<li>${E.ICONS.check}<span>${b}</span></li>`).join("");
+  if (c.faq && c.faq.length) document.getElementById("faqBody").innerHTML = c.faq.map(f => `<p><strong>${f.q}</strong><br>${f.a}</p>`).join(""); else document.getElementById("faqDetails").hidden = true;
+  const rt = E.rating(p);
+  document.getElementById("rating").innerHTML = CFG.SHOW_SAMPLE_RATINGS ? `<span class="stars" aria-hidden="true">★★★★★</span> ${rt.r} <a href="#reviewsSection" class="muted">(${rt.n} reviews)</a>` : "";
+  document.getElementById("shipHint").textContent = `Flat $${CFG.SHIPPING_FLAT} shipping · free over $${CFG.FREE_SHIPPING_THRESHOLD} · prices include GST`;
+
+  function setProduct(np, focus) {
+    p = np;
+    const title = isPack ? p.name : `${E.shortName(p.category)}`;
+    document.title = `${isPack ? p.name : `${E.shortName(p.category)} – ${p.color}`} | Ecosilk Bags`;
+    document.getElementById("metaDesc").content = c.seoDescription || document.getElementById("metaDesc").content;
+    document.getElementById("title").textContent = title;
+    document.getElementById("price").textContent = E.money(p.price);
+    document.getElementById("stickyPrice").textContent = E.money(p.price);
+    document.getElementById("stickyName").textContent = isPack ? p.name : `${E.shortName(p.category)} · ${p.color}`;
+    const img = document.getElementById("mainImg"); img.src = p.image; img.alt = E.altFor(p);
+    document.getElementById("colourName").textContent = isPack ? "" : p.color;
+    const sn = document.getElementById("stockNote");
+    sn.textContent = p.inStock ? "In stock, ships from NSW in 1–2 business days" : "Out of stock in this colour — pick another or ask the helper to notify you";
+    sn.classList.toggle("low", !p.inStock);
+    ["addBtn", "stickyAdd"].forEach(id => { const b = document.getElementById(id); b.disabled = !p.inStock; b.textContent = p.inStock ? "Add to bag" : "Out of stock"; });
+    document.querySelectorAll("#swatches .sw").forEach(b => { const on = b.dataset.sku === p.sku; b.setAttribute("aria-checked", String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
+    document.querySelectorAll("#thumbs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sku === p.sku)));
+    history.replaceState(null, "", `product.html?sku=${encodeURIComponent(p.sku)}`);
+    document.getElementById("ldjson").textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: isPack ? p.name : `${E.shortName(p.category)} – ${p.color}`, image: p.image, description: c.intro || "", sku: p.sku, brand: { "@type": "Brand", name: "Ecosilk Bags" }, color: p.color, offers: { "@type": "Offer", priceCurrency: "AUD", price: p.price.toFixed(2), availability: p.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", itemCondition: "https://schema.org/NewCondition", shippingDetails: { "@type": "OfferShippingDetails", shippingRate: { "@type": "MonetaryAmount", value: CFG.SHIPPING_FLAT, currency: "AUD" }, shippingDestination: { "@type": "DefinedRegion", addressCountry: "AU" } } } });
+    E.track("view_item", { currency: "AUD", value: p.price, items: [{ item_id: p.sku, item_name: E.displayTitle(p), price: p.price }] });
+  }
+
+  // Colour swatches + thumbs
+  if (isPack) { document.getElementById("colourBlock").hidden = true; document.getElementById("thumbs").hidden = true; }
+  else {
+    const sw = document.getElementById("swatches"), th = document.getElementById("thumbs");
+    sib.forEach((s, i) => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "sw" + (s.inStock ? "" : " oos"); b.setAttribute("role", "radio"); b.dataset.sku = s.sku; b.style.backgroundImage = `url('${s.image}')`; b.setAttribute("aria-label", s.color + (s.inStock ? "" : " (out of stock)")); b.title = s.color;
+      b.addEventListener("click", () => setProduct(s));
+      b.addEventListener("keydown", e => { if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); setProduct(sib[(i + 1) % sib.length], true); } if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); setProduct(sib[(i - 1 + sib.length) % sib.length], true); } });
+      sw.appendChild(b);
+      if (i < 8) { const t = document.createElement("button"); t.type = "button"; t.dataset.sku = s.sku; t.setAttribute("aria-label", `Show ${s.color}`); t.innerHTML = `<img src="${s.image}" alt="" loading="lazy" width="64" height="64">`; t.addEventListener("click", () => setProduct(s)); th.appendChild(t); }
+    });
+  }
+  setProduct(p);
+
+  // Qty
+  const qty = document.getElementById("qty");
+  document.getElementById("qtyMinus").addEventListener("click", () => qty.value = Math.max(1, +qty.value - 1));
+  document.getElementById("qtyPlus").addEventListener("click", () => qty.value = Math.min(50, +qty.value + 1));
+  function add(btn) { if (!p.inStock) return; E.addToCart(p.sku, +qty.value || 1); E.toast(`${E.displayTitle(p)} × ${qty.value} added to your bag`, { href: "cart.html", label: "View bag" }); const t = btn.textContent; btn.textContent = "Added"; setTimeout(() => btn.textContent = t, 1200); }
+  document.getElementById("addBtn").addEventListener("click", e => add(e.currentTarget));
+  document.getElementById("stickyAdd").addEventListener("click", e => add(e.currentTarget));
+
+  // Cross-sell
+  const cards = E.cards();
+  const pairings = {
+    "Ecosilk Environmentally Friendly Shopping Bag": ["Drawstring Bags", "Ecosilk Environmentally Friendly Fruit &amp; Vegie Bag", "Shoulder Beach Bags", "Mini Drawstring bags"],
+    "Shoulder Beach Bags": ["Ecosilk Environmentally Friendly Fruit &amp; Vegie Bag", "Drawstring Bags", "Ecosilk Environmentally Friendly Shopping Bag", "Pocket Travel Pouches"],
+    "Ecosilk Environmentally Friendly Fruit &amp; Vegie Bag": ["Ecosilk Environmentally Friendly Shopping Bag", "Fruit &amp; Vegie Bags Pack of 6", "Shoulder Beach Bags", "Drawstring Bags"],
+    "Drawstring Bags": ["Ecosilk Environmentally Friendly Shopping Bag", "Shopping Bags 6 Pack", "Mini Drawstring bags", "Shoulder Beach Bags"],
+    "Mini Drawstring bags": ["Ecosilk Environmentally Friendly Shopping Bag", "Drawstring Bags", "Ecosilk Environmentally Friendly Fruit &amp; Vegie Bag", "Shoulder Beach Bags"],
+    "Pocket Travel Pouches": ["Shoulder Beach Bags", "Drawstring Bags", "Ecosilk Environmentally Friendly Shopping Bag", "Mini Drawstring bags"]
+  };
+  const hints = { "Ecosilk Environmentally Friendly Shopping Bag": "A drawstring bag keeps six shopping bags together in the car. Add two more singles and the 10% mix & match saving kicks in.", "Shoulder Beach Bags": "Buy four shoulder bags and a free drawstring bag comes with them.", "Ecosilk Environmentally Friendly Fruit &amp; Vegie Bag": "Produce bags pair with a shopping bag to carry them home. Three or more singles save 10%." };
+  let cross = (pairings[p.category] || []).map(cat => cards.find(x => x.category === cat)).filter(Boolean);
+  if (!cross.length) cross = cards.filter(x => x.type === "pack" && x.product.sku !== p.sku && x.product.inStock).slice(0, 4);
+  document.getElementById("crossHint").textContent = hints[p.category] || "Themed packs make easy gifts and stash well in the car, pram and office drawer.";
+  document.getElementById("crossSell").innerHTML = cross.map(x => E.productCard(x)).join("");
+})();
 </script>
 </body>
 </html>

@@ -1,52 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact — Ecosilk</title>
+<title>Contact — Ecosilk Bags</title>
+<meta name="description" content="Get in touch with Ecosilk Bags: questions, stock alerts, international shipping quotes and wholesale enquiries.">
+
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+<main id="main">
 
-<nav>
-  <div class="navrow">
-    <div class="logo">ecosilk</div>
-    <div class="navlinks">
-      <a href="index.html">Home</a>
-      <a href="shop.html">Shop</a>
-      <a href="about.html">Impact</a>
-      <a href="contact.html" class="active">Contact</a>
+  <div class="wrap page-head"><span class="eyebrow">Contact</span><h1>Talk to a human</h1><p>We're a small team in the Northern Rivers. Messages are answered within a business day; the helper in the corner is instant if you're in a hurry.</p></div>
+  <div class="wrap grid-2" style="align-items:start;padding-bottom:var(--space-16);">
+    <form class="panel form" id="contactForm" novalidate>
+      <div class="form-row">
+        <div class="field"><label for="cName">Name</label><input id="cName" name="name" autocomplete="name" required><span class="error">Please enter your name.</span></div>
+        <div class="field"><label for="cEmail">Email</label><input id="cEmail" name="email" type="email" autocomplete="email" required><span class="error">Please enter a valid email.</span></div>
+      </div>
+      <div class="field"><label for="cTopic">What's it about?</label><select id="cTopic" name="topic"><option>A question before I order</option><option>An existing order</option><option>Stock alert for a colour</option><option>International shipping quote</option><option>Wholesale or stockist enquiry</option><option>Returns or guarantee claim</option><option>Something else</option></select></div>
+      <div class="field"><label for="cMsg">Message</label><textarea id="cMsg" name="message" required minlength="10"></textarea><span class="error">Tell us a little more (10+ characters).</span></div>
+      <button class="btn btn-primary btn-lg" type="submit">Send message</button>
+      <p class="small muted" id="contactNote"></p>
+    </form>
+    <div style="display:grid;gap:var(--space-5);">
+      <div class="card"><h2 style="font-size:var(--text-lg);">Direct</h2><ul role="list" style="display:grid;gap:var(--space-2);margin-top:var(--space-3);"><li><a id="mailLink" href="#"></a></li><li><a id="telLink" href="#"></a></li><li class="muted small" id="addr"></li></ul></div>
+      <div class="card"><h2 style="font-size:var(--text-lg);">Recycling returns</h2><p class="muted small" style="margin-top:var(--space-2);">Post worn-out bags to:</p><p style="font-weight:600;margin-top:var(--space-2);" id="recycleAddr"></p></div>
+      <div class="card"><h2 style="font-size:var(--text-lg);">Prefer to shop in person?</h2><p class="muted small" style="margin:var(--space-2) 0 var(--space-4);">Ecosilk is stocked in health food stores, post offices and gift shops across Australia.</p><a class="btn btn-outline" href="stockists.html">Find a stockist</a></div>
     </div>
-    <a href="cart.html" class="cart-pill" data-cart-count>Bag · 0</a>
   </div>
-</nav>
+</main>
 
-<div class="page-head">
-  <h1>Say hello</h1>
-  <p>Questions, wholesale enquiries, or just want to say you love your bag.</p>
-</div>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
 
-<div class="wrap" style="max-width:560px;padding-bottom:100px;">
-  <!--
-    FORM ACTION — placeholder.
-    Same pattern as iDream: sign up free at formspree.io, create a form,
-    drop the endpoint in below. No backend needed either way.
-  -->
-  <form class="contact-form" action="https://formspree.io/f/REPLACE_WITH_REAL_FORM_ID" method="POST">
-    <input type="text" name="name" placeholder="Your name" required>
-    <input type="email" name="email" placeholder="Your email" required>
-    <textarea name="message" placeholder="What's on your mind?" required></textarea>
-    <button type="submit" class="btn btn-full">Send</button>
-  </form>
-</div>
-
-<footer>
-  Prototype UI, R&amp;D build only — not the live site.
-</footer>
-
-<script src="assets/catalog-data.js"></script>
-<script src="assets/app.js"></script>
-</body>
-</html>
+<script>
+(function(){ const E=window.Ecosilk, B=E.CFG.BUSINESS;
+ document.getElementById("mailLink").textContent=B.email; document.getElementById("mailLink").href="mailto:"+B.email;
+ document.getElementById("telLink").textContent=B.phoneDisplay; document.getElementById("telLink").href="tel:"+B.phone.replace(/\s/g,"");
+ document.getElementById("addr").textContent=B.address; document.getElementById("recycleAddr").textContent=B.recyclingAddress;
+ const f=document.getElementById("contactForm");
+ f.addEventListener("submit", async e=>{ e.preventDefault(); if(!E.validate(f)) return; const b=f.querySelector("button"); b.disabled=true; b.textContent="Sending…";
+   const data=Object.fromEntries(new FormData(f).entries());
+   const r=await E.submitForm("contact",{...data,_subject:`Ecosilk contact: ${data.topic}`,_replyto:data.email}); E.track("generate_lead",{form:"contact"});
+   f.innerHTML=`<div class="form-success" role="status">Thanks ${data.name.split(" ")[0]}, we've got your message and will reply within a business day.${r.delivered?"":` <span class="small">(${r.message})</span>`}</div>`; });
+})();
+</script>
+</body></html>

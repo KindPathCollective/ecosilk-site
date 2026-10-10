@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank you — Ecosilk Bags</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<main id="main">
+  <div class="wrap thanks-hero">
+    <div class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <span class="eyebrow">Order <span id="orderNo"></span></span>
+    <h1 id="thanksTitle">Thanks, your bags are on their way</h1>
+    <p class="muted" style="max-width:52ch;margin:var(--space-3) auto 0;" id="thanksSub">A confirmation is heading to your inbox. We pack from the Northern Rivers within 1–2 business days.</p>
+  </div>
+
+  <div class="wrap grid-2" style="align-items:start;padding-bottom:var(--space-16);">
+    <div style="display:grid;gap:var(--space-5);">
+      <div class="ai-note" id="aiNote">
+        <span class="label"><span id="aiLabel">A note from Ecosilk</span></span>
+        <div id="aiBody"><div class="typing" aria-label="Writing"><i></i><i></i><i></i></div></div>
+      </div>
+      <div class="card">
+        <h2 style="font-size:var(--text-lg);">Share the habit</h2>
+        <p class="muted small" style="margin:var(--space-2) 0 var(--space-4);">Give a friend 10% off and we'll send you a Reef Collection discount when they order.</p>
+        <div class="code-box" id="refCode">REEF10</div>
+        <div class="share-row" style="margin-top:var(--space-4);">
+          <button class="btn btn-outline btn-sm" type="button" id="copyCode">Copy code</button>
+          <a class="btn btn-outline btn-sm" id="shareMail" href="#">Email a friend</a>
+          <button class="btn btn-outline btn-sm" type="button" id="shareNative" hidden>Share…</button>
+        </div>
+      </div>
+    </div>
+    <aside class="order-card" aria-label="Order details">
+      <h2 style="font-size:var(--text-lg);">What you ordered</h2>
+      <div class="review-block" id="orderLines"></div>
+      <div class="review-block" style="border-top:1px solid var(--line);padding-top:var(--space-3);" id="orderTotals"></div>
+      <div class="review-block" style="border-top:1px solid var(--line);padding-top:var(--space-3);" id="orderShip"></div>
+      <p class="small muted" id="orderStatus"></p>
+      <a class="btn btn-dark" href="shop.html">Keep shopping</a>
+    </aside>
+  </div>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
+<script>
+(function () {
+  const E = window.Ecosilk; const CFG = E.CFG;
+  const o = E.getLastOrder();
+  if (!o) { document.getElementById("thanksTitle").textContent = "No recent order found"; document.getElementById("thanksSub").innerHTML = 'Head to the <a href="shop.html">shop</a> to start one.'; document.getElementById("aiNote").hidden = true; return; }
+  document.getElementById("orderNo").textContent = o.number;
+  if (o.testMode) { document.getElementById("thanksTitle").textContent = `Test order placed, ${o.customer.firstName}`; document.getElementById("thanksSub").textContent = "This was a dummy-run order: nothing was charged. Everything else ran exactly as it will for a real customer."; }
+  else document.getElementById("thanksTitle").textContent = `Thanks ${o.customer.firstName}, your bags are on their way`;
+  document.getElementById("orderLines").innerHTML = o.lines.map(l => `<div class="kv"><span>${l.qty} × ${l.name}</span><span>${E.money(l.total)}</span></div>`).join("") + (o.gifts || []).map(g => `<div class="kv"><span>1 × ${g.name} <span class="badge badge-green">Free</span></span><span>$0.00</span></div>`).join("");
+  const sav = (o.discount || 0) + (o.volumeDiscount || 0);
+  document.getElementById("orderTotals").innerHTML = `<div class="kv"><span>Subtotal</span><span>${E.money(o.subtotal)}</span></div>${sav ? `<div class="kv"><span>Savings${o.code ? " (" + o.code + ")" : ""}</span><span class="free">−${E.money(sav)}</span></div>` : ""}<div class="kv"><span>Shipping</span><span>${o.shipping ? E.money(o.shipping) : "Free"}</span></div><div class="kv" style="font-weight:700;"><span>Total paid</span><span>${E.money(o.total)}</span></div><div class="kv small muted"><span>Includes GST</span><span>${E.money(o.gst)}</span></div>`;
+  const c = o.customer;
+  document.getElementById("orderShip").innerHTML = `<div class="kv"><span>Deliver to</span><span>${c.firstName} ${c.lastName}<br>${c.address1}${c.address2 ? "<br>" + c.address2 : ""}<br>${c.city} ${c.state} ${c.postcode}</span></div><div class="kv"><span>Payment</span><span>${o.payment.method === "paypal" ? "PayPal" + (o.payment.env === "sandbox" ? " (sandbox)" : "") : "Test order — not charged"}</span></div>`;
+  document.getElementById("orderStatus").textContent = o.delivery && o.delivery.delivered ? "Order email sent to the Ecosilk team." : "Order recorded locally" + (o.delivery ? ` — ${o.delivery.message}` : "") + " It appears on the staff dashboard.";
+
+  // Referral / share
+  const mail = `mailto:?subject=${encodeURIComponent("Thought you'd like these bags")}&body=${encodeURIComponent(`I just ordered from Ecosilk — reusable bags that carry 14 kg and fold into your pocket. Use code REEF10 for 10% off: ${location.origin}${location.pathname.replace(/[^/]*$/, "")}shop.html`)}`;
+  document.getElementById("shareMail").href = mail;
+  document.getElementById("copyCode").addEventListener("click", async e => { try { await navigator.clipboard.writeText("REEF10"); e.target.textContent = "Copied"; } catch (err) { e.target.textContent = "REEF10"; } });
+  if (navigator.share) { const b = document.getElementById("shareNative"); b.hidden = false; b.addEventListener("click", () => navigator.share({ title: "Ecosilk Bags", text: "Reusable bags that carry 14 kg and fold into your pocket. Code REEF10 for 10% off.", url: location.origin + location.pathname.replace(/[^/]*$/, "") + "shop.html" }).catch(() => {})); }
+
+  // AI note (personalised care + packing-style tips). Falls back to a static note.
+  const body = document.getElementById("aiBody");
+  const fallback = () => {
+    const cats = [...new Set(o.lines.map(l => l.category))];
+    body.innerHTML = `<p>Thanks for choosing to carry differently, ${c.firstName}. ${cats.length > 1 ? "Your " + cats.slice(0, -1).join(", ") + " and " + cats.slice(-1) : "Your " + cats[0]} will be packed by hand in Lismore and posted within a couple of days.</p><p>Care is simple: quick machine wash, line dry, cool iron only if you must. Keep one scrunched in a pocket or glovebox and you'll never be caught out again.</p><p>When a bag finally wears out, post it back to us and the nylon is recycled.</p>`;
+  };
+  if (window.EcosilkAssistant && window.EcosilkAssistant.available()) {
+    window.EcosilkAssistant.call("/order-note", { order: { number: o.number, customer: { firstName: c.firstName, state: c.state, notes: c.notes, gift: c.gift }, lines: o.lines, gifts: o.gifts, total: o.total, code: o.code } })
+      .then(r => { if (r && r.note) { body.innerHTML = r.note.split(/\n{2,}/).map(p => `<p>${p.replace(/</g, "&lt;")}</p>`).join(""); document.getElementById("aiLabel").textContent = "A note from Ecosilk, written for your order"; } else fallback(); })
+      .catch(fallback);
+  } else fallback();
+})();
+</script>
+</body>
+</html>

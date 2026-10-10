@@ -1,0 +1,10 @@
+name = "ecosilk-ai"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+AI_PROVIDER = "openai"          # or "anthropic"
+AI_MODEL = "gpt-4.1-mini"       # or "claude-sonnet-4-5"
+ALLOWED_ORIGINS = "https://kindpathcollective.github.io,https://www.ecosilkbags.com.au,https://ecosilkbags.com.au"
+
+# Secret (never commit): run `npx wrangler secret put AI_API_KEY`

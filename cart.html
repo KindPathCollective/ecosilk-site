@@ -1,66 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Bag — Ecosilk</title>
+<title>Your bag — Ecosilk Bags</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-
-<nav>
-  <div class="navrow">
-    <div class="logo">ecosilk</div>
-    <div class="navlinks">
-      <a href="index.html">Home</a>
-      <a href="shop.html">Shop</a>
-      <a href="about.html">Impact</a>
-      <a href="contact.html">Contact</a>
-    </div>
-    <a href="cart.html" class="cart-pill active" data-cart-count>Bag · 0</a>
+<main id="main">
+  <div class="wrap page-head"><h1>Your bag</h1><p id="cartIntro">Review your items, then check out securely with PayPal.</p></div>
+  <div class="wrap cart-layout">
+    <section aria-label="Items in your bag">
+      <div class="cart-lines" id="lines"></div>
+      <div class="empty" id="empty" hidden>
+        <p style="font-size:var(--text-lg);font-weight:600;color:var(--ink);">Your bag is empty</p>
+        <p style="margin:var(--space-2) 0 var(--space-5);">The shopping bag in sea green is where most people start.</p>
+        <a class="btn btn-primary" href="shop.html">Start shopping</a>
+      </div>
+      <div class="section-tight" id="upsell" hidden>
+        <div class="section-head" style="margin-bottom:var(--space-5);"><div><span class="eyebrow">Before you go</span><h2 style="font-size:var(--text-lg);" id="upsellTitle">Add one more and save</h2></div></div>
+        <div class="rail" id="upsellRail"></div>
+      </div>
+    </section>
+    <aside class="summary" id="summary" aria-label="Order summary">
+      <h2>Summary</h2>
+      <div class="ship-bar" id="shipBar"></div>
+      <div class="row"><span>Subtotal (<span id="count">0</span> items)</span><span id="subtotal">$0.00</span></div>
+      <div class="row" id="volumeRow" hidden><span id="volumeLabel">Mix &amp; match saving</span><span class="free" id="volumeAmt"></span></div>
+      <div class="row" id="discountRow" hidden><span id="discountLabel">Discount</span><span class="free" id="discountAmt"></span></div>
+      <div class="row"><span>Shipping</span><span id="shipping">—</span></div>
+      <div class="row total"><span>Total</span><span id="total">$0.00</span></div>
+      <div class="row small muted"><span>Includes GST</span><span id="gst"></span></div>
+      <div class="promo-wrap">
+        <form class="promo" id="promoForm"><label class="visually-hidden" for="promoCode">Discount code</label><input id="promoCode" placeholder="Discount code" autocomplete="off"><button class="btn btn-outline btn-sm" type="submit">Apply</button></form>
+        <div class="msg" id="promoMsg" aria-live="polite"></div>
+      </div>
+      <a class="btn btn-primary btn-lg btn-block" href="checkout.html" id="checkoutBtn">Checkout</a>
+      <div class="pay-logos"><span>PayPal</span><span>VISA</span><span>Mastercard</span><span>Pay in 4</span> Secure checkout</div>
+      <p class="small muted">Free shipping over $<span id="thresh"></span>. 30-day returns on unused bags. 5-year guarantee.</p>
+    </aside>
   </div>
-</nav>
+</main>
 
-<div class="page-head">
-  <h1>Your bag</h1>
-</div>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
+<script>
+(function () {
+  const E = window.Ecosilk; const CFG = E.CFG;
+  document.getElementById("thresh").textContent = CFG.FREE_SHIPPING_THRESHOLD;
+  const linesEl = document.getElementById("lines");
 
-<div class="wrap" style="max-width:700px;padding-bottom:100px;">
-  <div id="emptyState" class="empty-state" style="display:none;">
-    <p>Nothing in here yet.</p>
-    <br>
-    <a href="shop.html" class="btn">Browse the shop</a>
-  </div>
+  function render() {
+    const t = E.computeTotals();
+    document.getElementById("empty").hidden = t.lines.length > 0;
+    document.getElementById("summary").style.display = t.lines.length ? "" : "none";
+    document.getElementById("cartIntro").textContent = t.lines.length ? "Review your items, then check out securely with PayPal." : "Nothing here yet.";
+    linesEl.innerHTML = t.lines.map(l => {
+      const p = l.product;
+      return `<article class="line" data-sku="${p.sku}">
+        <a href="${E.productUrl(p)}"><img src="${p.image}" alt="${E.altFor(p)}" width="96" height="96" loading="lazy"></a>
+        <div>
+          <div class="title"><a href="${E.productUrl(p)}">${E.isPack(p) ? p.name : E.shortName(p.category)}</a></div>
+          <div class="sub">${E.isPack(p) ? "Reef Collection pack" : p.color} · ${E.money(p.price)} each</div>
+          <div class="line-actions">
+            <div class="qty" role="group" aria-label="Quantity for ${E.displayTitle(p)}"><button type="button" data-dec="${p.sku}" aria-label="Decrease">−</button><input type="number" value="${l.qty}" min="0" max="50" data-qty="${p.sku}" aria-label="Quantity"><button type="button" data-inc="${p.sku}" aria-label="Increase">+</button></div>
+            <button class="remove" type="button" data-remove="${p.sku}">Remove</button>
+          </div>
+        </div>
+        <div class="line-total">${E.money(l.lineTotal)}</div>
+      </article>`;
+    }).join("") + t.gifts.map(g => `<article class="line gift"><img src="${g.product.image}" alt="${E.altFor(g.product)}" width="96" height="96"><div><div class="title">${E.shortName(g.product.category)} <span class="badge badge-green">Free gift</span></div><div class="sub">${g.label} · colour matched to your order</div></div><div class="line-total">$0.00</div></article>`).join("");
 
-  <div id="cartLines"></div>
+    document.getElementById("count").textContent = t.count;
+    document.getElementById("subtotal").textContent = E.money(t.subtotal);
+    document.getElementById("volumeRow").hidden = !t.volumeActive; document.getElementById("volumeLabel").textContent = (CFG.VOLUME_RULE || {}).label || "Saving"; document.getElementById("volumeAmt").textContent = "−" + E.money(t.volumeDiscount);
+    document.getElementById("discountRow").hidden = !t.rule || t.rule.type === "shipping"; document.getElementById("discountLabel").textContent = t.rule ? `${t.code} · ${t.rule.label}` : ""; document.getElementById("discountAmt").textContent = "−" + E.money(t.discount);
+    document.getElementById("shipping").innerHTML = t.lines.length ? (t.shipping === 0 ? '<span class="free">Free</span>' : E.money(t.shipping)) : "—";
+    document.getElementById("total").textContent = E.money(t.total);
+    document.getElementById("gst").textContent = E.money(t.gst);
+    const bar = document.getElementById("shipBar");
+    if (t.freeShip || t.shipping === 0) { bar.className = "ship-bar done"; bar.textContent = "You've unlocked free shipping"; }
+    else { bar.className = "ship-bar"; bar.innerHTML = `Add <strong>${E.money(t.toFree)}</strong> more for free shipping<div class="track"><div class="fill" style="width:${Math.min(100, ((CFG.FREE_SHIPPING_THRESHOLD - t.toFree) / CFG.FREE_SHIPPING_THRESHOLD) * 100)}%"></div></div>`; }
+    if (t.code) { document.getElementById("promoCode").value = t.code; }
 
-  <div id="cartSummary" style="display:none;">
-    <div class="cart-total-row">
-      <span>Total</span>
-      <span id="cartTotal">$0.00</span>
-    </div>
+    // Upsell logic: nudge toward volume rule, free-ship threshold, or gift rule
+    const up = document.getElementById("upsell"); const rail = document.getElementById("upsellRail"); const title = document.getElementById("upsellTitle");
+    if (!t.lines.length) { up.hidden = true; return; }
+    const cards = E.cards(); let picks = [];
+    if (t.volumeToGo > 0) { title.textContent = `Add ${t.volumeToGo} more single bag${t.volumeToGo > 1 ? "s" : ""} and save 10% on all of them`; picks = cards.filter(c => c.type === "family" && E.GROUPS.singles.includes(c.category)); }
+    else if (t.toFree > 0) { title.textContent = `${E.money(t.toFree)} away from free shipping`; picks = cards.filter(c => c.type === "family" && c.product.price <= Math.max(6, t.toFree + 10)); }
+    else { title.textContent = "Make it a gift"; picks = cards.filter(c => c.type === "pack" && c.product.inStock); }
+    const inCart = new Set(t.lines.map(l => l.product.category));
+    picks = picks.filter(c => !inCart.has(c.category)).concat(picks.filter(c => inCart.has(c.category))).slice(0, 5);
+    up.hidden = picks.length === 0; rail.innerHTML = picks.map(c => E.productCard(c)).join("");
+  }
 
-    <!--
-      CHECKOUT — NOT YET WIRED
-      This is where the PayPal Smart Buttons SDK renders once we have:
-        1. A real PayPal Business account client ID (sandbox first)
-        2. The Apps Script webhook URL from the order-receiver scaffold,
-           set as the return/notify target
-      See README.md "Checkout wiring" for the exact snippet to drop in here.
-    -->
-    <div id="paypal-button-container" style="margin-top:20px;padding:20px;border:2px dashed var(--ink);border-radius:16px;text-align:center;opacity:0.6;">
-      PayPal checkout renders here once wired up — see README.md
-    </div>
-  </div>
-</div>
-
-<footer>
-  Made in Australia since 2001. Prototype UI, R&amp;D build only — not the live site.
-</footer>
-
-<script src="assets/catalog-data.js"></script>
-<script src="assets/app.js"></script>
+  linesEl.addEventListener("click", e => {
+    const inc = e.target.closest("[data-inc]"), dec = e.target.closest("[data-dec]"), rm = e.target.closest("[data-remove]");
+    if (inc) { const l = E.getCart().find(x => x.sku === inc.dataset.inc); E.setQty(inc.dataset.inc, (l ? l.qty : 0) + 1); }
+    if (dec) { const l = E.getCart().find(x => x.sku === dec.dataset.dec); E.setQty(dec.dataset.dec, (l ? l.qty : 1) - 1); }
+    if (rm) { E.setQty(rm.dataset.remove, 0); E.toast("Removed from your bag"); }
+    if (inc || dec || rm) render();
+  });
+  linesEl.addEventListener("change", e => { const q = e.target.closest("[data-qty]"); if (q) { E.setQty(q.dataset.qty, +q.value); render(); } });
+  document.getElementById("promoForm").addEventListener("submit", e => {
+    e.preventDefault(); const code = document.getElementById("promoCode").value.trim(); const msg = document.getElementById("promoMsg");
+    if (!code) { E.clearPromo(); msg.textContent = "Code removed."; msg.className = "msg"; render(); return; }
+    const r = E.applyPromo(code); msg.textContent = r.message; msg.className = "msg " + (r.ok ? "ok" : "bad"); if (r.ok) E.track("select_promotion", { promotion_name: code }); render();
+  });
+  document.getElementById("checkoutBtn").addEventListener("click", () => { const t = E.computeTotals(); E.track("begin_checkout", { currency: "AUD", value: t.total, items: t.lines.map(l => ({ item_id: l.sku, quantity: l.qty, price: l.product.price })) }); });
+  render();
+})();
+</script>
 </body>
 </html>

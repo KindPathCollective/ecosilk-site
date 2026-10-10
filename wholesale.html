@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundraising, custom print & wholesale — Ecosilk Bags</title>
+<meta name="description" content="Print your logo on Ecosilk bags for fundraising and promotions, or stock Ecosilk in your store. Healthy margins, a product people keep for years.">
+
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<main id="main">
+
+  <div class="wrap page-head"><span class="eyebrow">Fundraising, custom print &amp; wholesale</span><h1>A fundraiser people actually keep</h1><p>Chocolate gets eaten and tea towels get forgotten. An Ecosilk bag with your school, club or brand on it gets used three times a week for five years.</p></div>
+
+  <section class="section-tight">
+    <div class="wrap grid-2" style="grid-template-columns:1fr 1fr 1fr;" id="threeUp">
+      <div class="card"><span class="badge">Fundraising</span><h2 style="font-size:var(--text-lg);margin-top:var(--space-3);">Schools, clubs, community groups</h2><p class="muted small" style="margin-top:var(--space-2);">Healthy margins per bag, no perishables, and a product your supporters are proud to carry. We'll help you set a price and a target.</p></div>
+      <div class="card"><span class="badge badge-green">Custom print</span><h2 style="font-size:var(--text-lg);margin-top:var(--space-3);">Logos &amp; artwork</h2><p class="muted small" style="margin-top:var(--space-2);">Shopping, shoulder and fruit &amp; vegie bags printed with your artwork for conferences, gifts and campaigns. A giveaway that outlives the event by years.</p></div>
+      <div class="card"><span class="badge badge-ink">Wholesale</span><h2 style="font-size:var(--text-lg);margin-top:var(--space-3);">Stock Ecosilk</h2><p class="muted small" style="margin-top:var(--space-2);">Join 60+ health food stores, post offices and gift shops across Australia and overseas. Low minimums, fast repeat orders.</p></div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--surface-2);">
+    <div class="wrap grid-2" style="align-items:start;">
+      <div>
+        <span class="eyebrow">Tell us about it</span>
+        <h2>Get a quote in a business day</h2>
+        <p class="muted" style="margin-top:var(--space-3);">Rough numbers are fine. We'll come back with options, lead times and a price per bag.</p>
+        <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="stat"><strong>5 yrs</strong><span>your logo in daily use</span></div>
+          <div class="stat"><strong>14 kg</strong><span>strong enough for a week's shop</span></div>
+        </div>
+      </div>
+      <form class="panel form" id="wsForm" novalidate>
+        <div class="form-row">
+          <div class="field"><label for="wName">Your name</label><input id="wName" name="name" autocomplete="name" required><span class="error">Please enter your name.</span></div>
+          <div class="field"><label for="wOrg">Organisation</label><input id="wOrg" name="organisation" autocomplete="organization" required><span class="error">Please enter your organisation.</span></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="wEmail">Email</label><input id="wEmail" name="email" type="email" autocomplete="email" required><span class="error">Please enter a valid email.</span></div>
+          <div class="field"><label for="wPhone">Phone <span class="opt">(optional)</span></label><input id="wPhone" name="phone" type="tel" autocomplete="tel"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="wType">Enquiry type</label><select id="wType" name="type"><option>Fundraising</option><option>Custom print / promotional</option><option>Wholesale / become a stockist</option></select></div>
+          <div class="field"><label for="wQty">Approximate quantity</label><select id="wQty" name="quantity"><option>Under 50</option><option>50–100</option><option>100–250</option><option>250–500</option><option>500+</option></select></div>
+        </div>
+        <div class="field"><label for="wMsg">What are you planning?</label><textarea id="wMsg" name="message" placeholder="Which bags, colours, artwork, timing, budget…"></textarea></div>
+        <button class="btn btn-primary btn-lg" type="submit">Request a quote</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
+
+<style>@media (max-width:900px){ #threeUp{grid-template-columns:1fr !important;} }</style>
+<script>
+(function(){ const E=window.Ecosilk; const f=document.getElementById("wsForm");
+ f.addEventListener("submit", async e=>{ e.preventDefault(); if(!E.validate(f)) return; const b=f.querySelector("button"); b.disabled=true; b.textContent="Sending…";
+   const data=Object.fromEntries(new FormData(f).entries());
+   const r=await E.submitForm("wholesale",{...data,_subject:`Ecosilk ${data.type} enquiry — ${data.organisation}`,_replyto:data.email}); E.track("generate_lead",{form:"wholesale",type:data.type});
+   f.innerHTML=`<div class="form-success" role="status">Thanks ${data.name.split(" ")[0]}. We'll reply to ${data.email} within a business day with options and pricing.${r.delivered?"":` <span class="small">(${r.message})</span>`}</div>`; });
+})();
+</script>
+</body></html>

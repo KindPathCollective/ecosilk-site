@@ -1,52 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shop — Ecosilk</title>
+<title>Shop reusable bags — Ecosilk Bags</title>
+<meta name="description" content="Shop Ecosilk's full range: shopping bags, shoulder and beach bags, fruit and vegie bags, drawstring bags and Reef Collection packs. 24 colours, 5-year guarantee, flat $10.95 shipping.">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-
-<nav>
-  <div class="navrow">
-    <div class="logo">ecosilk</div>
-    <div class="navlinks">
-      <a href="index.html">Home</a>
-      <a href="shop.html" class="active">Shop</a>
-      <a href="about.html">Impact</a>
-      <a href="contact.html">Contact</a>
-    </div>
-    <a href="cart.html" class="cart-pill" data-cart-count>Bag · 0</a>
+<main id="main">
+  <div class="wrap page-head">
+    <span class="eyebrow">The range</span>
+    <h1 id="shopTitle">All bags</h1>
+    <p id="shopIntro">Five styles, one fabric. Pick a style, then your colour. Any 3 single bags together save 10%, and orders over $75 ship free.</p>
   </div>
-</nav>
 
-<div class="page-head">
-  <h1>Every colour. Every bag.</h1>
-  <p>131 products, one filter away.</p>
-</div>
+  <div class="wrap shop-layout">
+    <aside>
+      <button class="btn btn-outline filter-toggle" type="button" id="filterToggle" aria-expanded="false" aria-controls="filters">Filter &amp; sort</button>
+      <form class="filters" id="filters" aria-label="Filter products">
+        <fieldset>
+          <legend>Type</legend>
+          <label class="check"><input type="radio" name="group" value="all" checked> Everything</label>
+          <label class="check"><input type="radio" name="group" value="singles"> Single bags <span class="n" id="nSingles"></span></label>
+          <label class="check"><input type="radio" name="group" value="packs"> Reef Collection packs <span class="n" id="nPacks"></span></label>
+          <label class="check"><input type="radio" name="group" value="travel"> Travel pouches <span class="n" id="nTravel"></span></label>
+        </fieldset>
+        <fieldset id="catFacet">
+          <legend>Style</legend>
+        </fieldset>
+        <fieldset>
+          <legend>Price</legend>
+          <label class="check"><input type="checkbox" name="price" value="0-6"> Under $6</label>
+          <label class="check"><input type="checkbox" name="price" value="6-20"> $6 – $20</label>
+          <label class="check"><input type="checkbox" name="price" value="20-60"> $20 – $60</label>
+          <label class="check"><input type="checkbox" name="price" value="60-999"> Over $60</label>
+        </fieldset>
+        <fieldset>
+          <legend>Availability</legend>
+          <label class="check"><input type="checkbox" name="instock" value="1"> In stock only</label>
+        </fieldset>
+        <button class="btn btn-ghost btn-sm" type="reset" id="resetFilters">Clear filters</button>
+      </form>
+    </aside>
 
-<div class="filter-row" id="filters"></div>
+    <section aria-labelledby="shopTitle">
+      <div class="shop-toolbar">
+        <div class="result-count" id="resultCount" aria-live="polite"></div>
+        <label class="select">Sort <select id="sort"><option value="featured">Featured</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="name">Name A–Z</option></select></label>
+      </div>
+      <div class="chips" id="chips" aria-label="Active filters"></div>
+      <div class="product-grid" id="grid"></div>
+      <div class="empty" id="empty" hidden>Nothing matches those filters. <button class="btn btn-ghost btn-sm" type="button" id="emptyReset">Clear filters</button></div>
 
-<div class="wrap">
-  <div class="product-grid" id="grid"></div>
-</div>
+      <div class="section-tight" style="margin-top:var(--space-12);">
+        <div class="bundle reveal">
+          <div class="bundle-img" id="bundleImg"></div>
+          <div class="bundle-body">
+            <span class="badge">Mix &amp; match</span>
+            <h2 style="font-size:var(--text-xl);">Build your own set, save 10%</h2>
+            <p class="muted">Add any three or more single bags, in any colours, and the discount applies itself in your bag. Four shoulder bags also earn a free drawstring bag to keep them in.</p>
+            <ul>
+              <li>2 × Shopping Bags + 1 × Drawstring = the everyday kit</li>
+              <li>1 × Shoulder Bag + 4 × Fruit &amp; Vegie = market day</li>
+              <li>6 × Mini Drawstring = stocking fillers sorted</li>
+            </ul>
+            <div class="buy-row" style="margin-top:var(--space-2);"><button class="btn btn-primary" type="button" id="addEverydayKit">Add the everyday kit</button><a class="btn btn-outline" href="#filters" id="pickOwn">Pick my own</a></div>
+            <span class="save" id="kitSave"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
 
-<div style="height:80px;"></div>
-
-<footer>
-  Made in Australia since 2001. Prototype UI, R&amp;D build only — not the live site.
-</footer>
-
-<script src="assets/catalog-data.js"></script>
-<script src="assets/app.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
 <script>
-  const filtersEl = document.getElementById('filters');
-  const gridEl = document.getElementById('grid');
-  renderCategoryFilters(filtersEl, (cat) => renderProductGrid(gridEl, cat));
-  renderProductGrid(gridEl, 'All');
+(function () {
+  const E = window.Ecosilk;
+  const all = E.cards();
+  const params = new URLSearchParams(location.search);
+  const form = document.getElementById("filters");
+  const grid = document.getElementById("grid");
+
+  // Facets
+  const catFacet = document.getElementById("catFacet");
+  E.categories().forEach(cat => {
+    const n = all.filter(c => c.category === cat).length;
+    catFacet.insertAdjacentHTML("beforeend", `<label class="check"><input type="checkbox" name="cat" value="${cat}"> ${E.shortName(cat).replace(" · ", " ")} <span class="n">${n}</span></label>`);
+  });
+  document.getElementById("nSingles").textContent = all.filter(c => E.GROUPS.singles.includes(c.category)).length;
+  document.getElementById("nPacks").textContent = all.filter(c => E.GROUPS.packs.includes(c.category)).length;
+  document.getElementById("nTravel").textContent = all.filter(c => E.GROUPS.travel.includes(c.category)).length;
+
+  // Initial state from URL
+  if (params.get("group")) { const r = form.querySelector(`input[name="group"][value="${params.get("group")}"]`); if (r) r.checked = true; }
+  if (params.get("cat")) { const c = form.querySelector(`input[name="cat"][value="${CSS.escape(params.get("cat").replace(/&/g, "&amp;"))}"]`); if (c) c.checked = true; }
+  if (params.get("q")) { /* search handled below */ }
+
+  const TITLES = { singles: ["Single bags", "Pick a style and a colour. Any 3 together save 10%."], packs: ["Reef Collection packs", "Coordinated colour packs named after the species the Australian Marine Conservation Society works to protect."], travel: ["Travel pouches", "Keep shoes, laundry and small things sorted in your suitcase."] };
+
+  function state() {
+    const fd = new FormData(form);
+    return { group: fd.get("group") || "all", cats: fd.getAll("cat"), prices: fd.getAll("price"), instock: !!fd.get("instock"), sort: document.getElementById("sort").value, q: (params.get("q") || "").toLowerCase() };
+  }
+  function render() {
+    const s = state();
+    let list = all.slice();
+    if (s.group !== "all") list = list.filter(c => E.GROUPS[s.group].includes(c.category));
+    if (s.cats.length) list = list.filter(c => s.cats.includes(c.category));
+    if (s.prices.length) list = list.filter(c => s.prices.some(r => { const [a, b] = r.split("-").map(Number); return c.product.price >= a && c.product.price < b; }));
+    if (s.instock) list = list.filter(c => c.type === "pack" ? c.product.inStock : c.colours.some(x => x.inStock));
+    if (s.q) { const hits = new Set(E.search(s.q).map(c => c.product.sku)); list = list.filter(c => hits.has(c.product.sku)); }
+    if (s.sort === "price-asc") list.sort((a, b) => a.product.price - b.product.price);
+    if (s.sort === "price-desc") list.sort((a, b) => b.product.price - a.product.price);
+    if (s.sort === "name") list.sort((a, b) => (a.type === "family" ? E.shortName(a.category) : a.product.name).localeCompare(b.type === "family" ? E.shortName(b.category) : b.product.name));
+    const badges = { "Ecosilk Environmentally Friendly Shopping Bag": "Bestseller", "Shoulder Beach Bags": "Most gifted" };
+    grid.innerHTML = list.map(c => E.productCard(c, { badge: badges[c.category] })).join("");
+    document.getElementById("empty").hidden = list.length > 0;
+    document.getElementById("resultCount").textContent = `${list.length} ${list.length === 1 ? "product" : "products"}${s.q ? ` for “${params.get("q")}”` : ""}`;
+    const t = TITLES[s.group]; document.getElementById("shopTitle").textContent = s.q ? `Results for “${params.get("q")}”` : (t ? t[0] : "All bags");
+    if (t) document.getElementById("shopIntro").textContent = t[1];
+    // Chips
+    const chips = [];
+    s.cats.forEach(c => chips.push({ label: E.shortName(c), clear: () => form.querySelector(`input[name="cat"][value="${CSS.escape(c)}"]`).checked = false }));
+    s.prices.forEach(p => chips.push({ label: form.querySelector(`input[name="price"][value="${p}"]`).parentNode.textContent.trim(), clear: () => form.querySelector(`input[name="price"][value="${p}"]`).checked = false }));
+    if (s.instock) chips.push({ label: "In stock", clear: () => form.querySelector('input[name="instock"]').checked = false });
+    const chipEl = document.getElementById("chips");
+    chipEl.innerHTML = chips.map((c, i) => `<span class="chip">${c.label}<button type="button" data-chip="${i}" aria-label="Remove filter ${c.label}">${E.ICONS.close.replace('viewBox', 'width="14" height="14" viewBox')}</button></span>`).join("");
+    chipEl.querySelectorAll("[data-chip]").forEach(b => b.addEventListener("click", () => { chips[+b.dataset.chip].clear(); render(); }));
+    E.track("view_item_list", { item_list_name: s.group, items: list.length });
+  }
+  form.addEventListener("change", render);
+  document.getElementById("sort").addEventListener("change", render);
+  form.addEventListener("reset", () => setTimeout(render, 0));
+  document.getElementById("emptyReset").addEventListener("click", () => { form.reset(); params.delete("q"); render(); });
+  const ft = document.getElementById("filterToggle");
+  ft.addEventListener("click", () => { const open = form.classList.toggle("open"); ft.setAttribute("aria-expanded", String(open)); });
+  document.getElementById("pickOwn").addEventListener("click", () => { if (getComputedStyle(ft).display !== "none" && !form.classList.contains("open")) ft.click(); });
+  render();
+
+  // Everyday kit bundle
+  const shop = E.representative("Ecosilk Environmentally Friendly Shopping Bag");
+  const shop2 = E.byCategory("Ecosilk Environmentally Friendly Shopping Bag").filter(p => p.inStock && p.sku !== shop.sku)[0];
+  const draw = E.representative("Drawstring Bags");
+  const kit = [shop, shop2, draw].filter(Boolean);
+  document.getElementById("bundleImg").innerHTML = kit.concat([E.representative("Shoulder Beach Bags")]).map(p => `<div style="background-image:url('${p.image}')" role="img" aria-label="${E.altFor(p)}"></div>`).join("");
+  const kitTotal = kit.reduce((s, p) => s + p.price, 0);
+  document.getElementById("kitSave").textContent = `Everyday kit: ${E.money(kitTotal)} → ${E.money(kitTotal * 0.9)} with the 10% mix & match saving`;
+  document.getElementById("addEverydayKit").addEventListener("click", e => { kit.forEach(p => E.addToCart(p.sku, 1)); E.toast("Everyday kit added — 10% saving applied", { href: "cart.html", label: "View bag" }); e.target.textContent = "Added"; });
+})();
 </script>
 </body>
 </html>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /thank-you.html
+Disallow: /admin.html
+Sitemap: https://kindpathcollective.github.io/ecosilk-site/sitemap.xml

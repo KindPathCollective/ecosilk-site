@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff dashboard — Ecosilk Bags</title>
+<meta name="description" content="Staff-only dashboard for the Ecosilk trial site.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<main id="main">
+
+  <div class="wrap page-head"><span class="eyebrow">Staff</span><h1>Trial-run dashboard</h1><p>Everything you need to check the dummy run end to end: configuration status, test orders placed in this browser, and the AI back-office helpers. Not linked from the public nav beyond the footer.</p></div>
+
+  <div class="wrap" style="display:grid;gap:var(--space-8);padding-bottom:var(--space-16);">
+
+    <section class="panel">
+      <h2>Launch checklist</h2>
+      <div class="review-block" id="checklist"></div>
+    </section>
+
+    <section>
+      <div class="section-head" style="margin-bottom:var(--space-4);"><div><h2 style="font-size:var(--text-lg);">Orders seen in this browser</h2><p class="small">Test orders are stored in this browser. Real orders arrive by email via Formspree; export them from Formspree as CSV and paste below to analyse all orders together.</p></div><div style="display:flex;gap:var(--space-2);"><button class="btn btn-outline btn-sm" type="button" id="exportBtn">Copy orders as JSON</button><button class="btn btn-ghost btn-sm" type="button" id="clearBtn">Clear test data</button></div></div>
+      <div class="kpis" id="kpis"></div>
+      <div style="overflow-x:auto;margin-top:var(--space-4);"><table class="table" id="ordersTable"><thead><tr><th>Order</th><th>When</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Email</th></tr></thead><tbody></tbody></table></div>
+      <details style="margin-top:var(--space-4);"><summary class="small" style="cursor:pointer;">Paste Formspree CSV / JSON export to include real orders</summary><div class="field" style="margin-top:var(--space-3);"><label for="importBox" class="visually-hidden">Import</label><textarea id="importBox" placeholder="Paste CSV or JSON here"></textarea></div><button class="btn btn-outline btn-sm" type="button" id="importBtn" style="margin-top:var(--space-2);">Import</button> <span class="small muted" id="importMsg"></span></details>
+    </section>
+
+    <section class="admin-grid">
+      <div class="panel">
+        <h2>AI back-office helpers <span class="status-pill" id="aiStatus">checking</span></h2>
+        <p class="small muted" style="margin-bottom:var(--space-4);">Runs on the orders above. Each button sends the order data to the Ecosilk AI worker and returns a draft you can copy.</p>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+          <button class="btn btn-dark btn-sm" type="button" data-digest="weekly">Weekly sales digest</button>
+          <button class="btn btn-dark btn-sm" type="button" data-digest="lowstock">Low-stock nudges</button>
+          <button class="btn btn-dark btn-sm" type="button" data-digest="summary">Packing summary</button>
+          <button class="btn btn-dark btn-sm" type="button" data-digest="email">Confirmation email draft</button>
+        </div>
+        <div class="field" style="margin-top:var(--space-4);"><label for="stockBox">Stock on hand <span class="opt">(for low-stock nudges — one per line, "SKU qty")</span></label><textarea id="stockBox" style="min-height:90px;font-family:monospace;font-size:13px;"></textarea></div>
+        <div class="output" id="aiOut" aria-live="polite" style="margin-top:var(--space-4);">Pick a helper above.</div>
+        <div style="display:flex;gap:var(--space-2);margin-top:var(--space-3);"><button class="btn btn-outline btn-sm" type="button" id="copyOut">Copy</button></div>
+      </div>
+      <div style="display:grid;gap:var(--space-6);">
+        <div class="panel"><h2>Form submissions (this browser)</h2><div style="overflow-x:auto;"><table class="table" id="subsTable"><thead><tr><th>Type</th><th>When</th><th>Detail</th><th>Sent</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="panel"><h2>Analytics events (this browser)</h2><p class="small muted" style="margin-bottom:var(--space-3);">Funnel check: page_view → view_item → add_to_cart → begin_checkout → purchase. These also fire to GA4 / Meta when IDs are set.</p><div class="kpis" id="funnel"></div></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
+
+<script>
+(function(){
+  const E=window.Ecosilk, CFG=E.CFG;
+  // Checklist
+  const checks=[
+    ["Test mode", CFG.TEST_MODE?"warn":"ok", CFG.TEST_MODE?"ON — test-order button visible, submissions may be local only. Set TEST_MODE:false for launch.":"OFF — production behaviour."],
+    ["PayPal", CFG.PAYPAL_CLIENT_ID==="sb"?"warn":(CFG.PAYPAL_CLIENT_ID?"ok":"bad"), CFG.PAYPAL_CLIENT_ID==="sb"?"Using PayPal's generic sandbox client ('sb'). Paste your own sandbox client ID, then the live one at launch.":(CFG.PAYPAL_CLIENT_ID?`Client ID set (${CFG.PAYPAL_ENV}).`:"Not configured.")],
+    ["Formspree · orders", CFG.FORMSPREE.orders?"ok":"bad", CFG.FORMSPREE.orders?"Order emails will be delivered.":"No form ID — orders are only stored in the buyer's browser. Add FORMSPREE.orders in config.js."],
+    ["Formspree · newsletter / contact / wholesale", (CFG.FORMSPREE.newsletter&&CFG.FORMSPREE.contact&&CFG.FORMSPREE.wholesale)?"ok":"warn", "Blank IDs fall back to local storage so forms never error."],
+    ["AI worker", CFG.ASSISTANT_ENDPOINT?"ok":"warn", CFG.ASSISTANT_ENDPOINT?`Endpoint: ${CFG.ASSISTANT_ENDPOINT}`:"No endpoint — helper runs in catalog/FAQ mode; thank-you notes use the static version; back-office helpers disabled. Deploy /worker and set ASSISTANT_ENDPOINT."],
+    ["Analytics", (CFG.GA4_ID||CFG.META_PIXEL_ID)?"ok":"warn", (CFG.GA4_ID||CFG.META_PIXEL_ID)?"Events firing.":"No GA4 / Meta Pixel ID — events logged locally only."],
+    ["Sample ratings", CFG.SHOW_SAMPLE_RATINGS?"warn":"ok", CFG.SHOW_SAMPLE_RATINGS?"Product cards show SAMPLE star ratings. Replace with real reviews or set SHOW_SAMPLE_RATINGS:false before launch.":"Hidden."],
+    ["Product images", "warn", "Images are hot-linked from the current WordPress site. Export or re-shoot before the WordPress site is switched off."],
+    ["Storage mode", E.Storage.mode==="browser"?"ok":"warn", E.Storage.mode==="browser"?"Browser storage available — carts persist between visits.":"Sandboxed preview — carts persist only within this tab."]
+  ];
+  document.getElementById("checklist").innerHTML=checks.map(([k,s,d])=>`<div class="kv"><span><span class="status-pill ${s}">${k}</span></span><span class="small" style="text-align:right;max-width:60ch;">${d}</span></div>`).join("");
+
+  // Orders
+  let imported=[];
+  function allOrders(){ return E.getOrders().concat(imported); }
+  function renderOrders(){
+    const orders=allOrders();
+    const rev=orders.reduce((s,o)=>s+(+o.total||0),0), items=orders.reduce((s,o)=>s+(o.lines||[]).reduce((a,l)=>a+(+l.qty||0),0),0);
+    document.getElementById("kpis").innerHTML=[["Orders",orders.length],["Revenue",E.money(rev)],["Avg order",orders.length?E.money(rev/orders.length):"—"],["Items sold",items]].map(([k,v])=>`<div class="kpi"><strong>${v}</strong><span>${k}</span></div>`).join("");
+    document.querySelector("#ordersTable tbody").innerHTML=orders.map(o=>`<tr><td><b>${o.number}</b>${o.code?`<br><span class="small muted">${o.code}</span>`:""}</td><td>${new Date(o.placedAt).toLocaleString("en-AU",{dateStyle:"short",timeStyle:"short"})}</td><td>${o.customer?(o.customer.firstName+" "+o.customer.lastName+"<br><span class='small muted'>"+(o.customer.city||"")+" "+(o.customer.state||"")+"</span>"):""}</td><td class="small">${(o.lines||[]).map(l=>`${l.qty} × ${l.name}`).join("<br>")}${(o.gifts||[]).map(g=>`<br><span class="verified">+ ${g.name} (gift)</span>`).join("")}</td><td>${E.money(+o.total||0)}</td><td><span class="status-pill ${o.status==="PAID"?"ok":"warn"}">${o.status||""}</span></td><td class="small">${o.delivery?(o.delivery.delivered?"Sent":"Local"):""}</td></tr>`).join("")||`<tr><td colspan="7" class="muted">No orders yet. Place a test order through the checkout to see the full flow.</td></tr>`;
+    // Funnel
+    const ev=E.getEvents(); const count=n=>ev.filter(e=>e.name===n).length;
+    document.getElementById("funnel").innerHTML=["page_view","view_item","add_to_cart","begin_checkout","purchase"].map(n=>`<div class="kpi"><strong>${count(n)}</strong><span>${n}</span></div>`).join("");
+    const subs=E.getSubmissions();
+    document.querySelector("#subsTable tbody").innerHTML=subs.slice(0,30).map(s=>`<tr><td>${s.type}</td><td class="small">${new Date(s.at).toLocaleString("en-AU",{dateStyle:"short",timeStyle:"short"})}</td><td class="small">${(s.payload.email||s.payload.customer_name||s.payload.organisation||"")} ${s.payload._subject?"· "+s.payload._subject:""}</td><td>${s.delivered?"Yes":"Local"}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">None yet.</td></tr>`;
+  }
+  renderOrders();
+  document.getElementById("exportBtn").addEventListener("click",async e=>{ try{ await navigator.clipboard.writeText(JSON.stringify(allOrders(),null,2)); e.target.textContent="Copied"; }catch(err){ e.target.textContent="Clipboard blocked"; } setTimeout(()=>e.target.textContent="Copy orders as JSON",1500); });
+  document.getElementById("clearBtn").addEventListener("click",()=>{ if(confirm("Clear test orders, submissions and events stored in this browser?")){ ["ecosilk_orders","ecosilk_last_order","ecosilk_submissions","ecosilk_events"].forEach(k=>E.Storage.remove(k)); renderOrders(); } });
+  document.getElementById("importBtn").addEventListener("click",()=>{
+    const raw=document.getElementById("importBox").value.trim(); const msg=document.getElementById("importMsg"); if(!raw) return;
+    try{ if(raw.startsWith("[")||raw.startsWith("{")){ const j=JSON.parse(raw); imported=(Array.isArray(j)?j:[j]).map(o=>o.order_json?JSON.parse(o.order_json):o); }
+      else { const rows=raw.split(/\r?\n/).filter(Boolean); const hdr=rows.shift().split(",").map(h=>h.replace(/^"|"$/g,"").trim()); const idx=hdr.indexOf("order_json"); if(idx<0) throw new Error("No order_json column"); imported=rows.map(r=>{ const cells=r.match(/("([^"]|"")*"|[^,]*)(,|$)/g).map(c=>c.replace(/,$/,"").replace(/^"|"$/g,"").replace(/""/g,'"')); return JSON.parse(cells[idx]); }); }
+      msg.textContent=`Imported ${imported.length} orders.`; renderOrders(); }catch(e){ msg.textContent="Couldn't parse that: "+e.message; }
+  });
+
+  // Stock box default from catalog flags
+  document.getElementById("stockBox").value=E.CATALOG.filter(p=>!p.inStock).map(p=>`${p.sku} 0`).join("\n")+"\n# add lines like: SSE 12  (SKU then quantity)";
+
+  // AI helpers
+  const A=window.EcosilkAssistant; const st=document.getElementById("aiStatus"); const out=document.getElementById("aiOut");
+  if(A&&A.available()){ fetch(CFG.ASSISTANT_ENDPOINT+"/health").then(r=>r.json()).then(j=>{ st.textContent=`online · ${j.provider}${j.model?" · "+j.model:""}`; st.className="status-pill ok"; }).catch(()=>{ st.textContent="unreachable"; st.className="status-pill bad"; }); }
+  else { st.textContent="not configured"; st.className="status-pill warn"; document.querySelectorAll("[data-digest]").forEach(b=>b.disabled=true); out.textContent="Deploy the worker in /worker and set ASSISTANT_ENDPOINT in config.js to enable these helpers."; }
+  document.querySelectorAll("[data-digest]").forEach(b=>b.addEventListener("click",async()=>{
+    const orders=allOrders(); if(!orders.length){ out.textContent="No orders to analyse yet — place a test order first."; return; }
+    out.innerHTML='<span class="typing" aria-label="Working"><i></i><i></i><i></i></span>'; document.querySelectorAll("[data-digest]").forEach(x=>x.disabled=true);
+    const stock=document.getElementById("stockBox").value.split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#")).map(l=>{ const [sku,qty]=l.split(/\s+/); const p=E.bySku(sku); return p?{sku,name:E.displayTitle(p),qty:+qty||0}:null; }).filter(Boolean);
+    try{ const r=await A.call("/digest",{type:b.dataset.digest,orders:orders.slice(0,100),stock,period:"trial"}); out.textContent=r.digest||r.error||"No response."; }
+    catch(e){ out.textContent="The worker didn't respond: "+e.message; }
+    document.querySelectorAll("[data-digest]").forEach(x=>x.disabled=false);
+  }));
+  document.getElementById("copyOut").addEventListener("click",async e=>{ try{ await navigator.clipboard.writeText(out.textContent); e.target.textContent="Copied"; }catch(err){} setTimeout(()=>e.target.textContent="Copy",1500); });
+})();
+</script>
+</body></html>

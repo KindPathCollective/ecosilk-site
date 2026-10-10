@@ -1,152 +1,236 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ecosilk — The bag that refuses to end up in a landfill</title>
+<title>Ecosilk Bags — Reusable parachute-silk bags that carry 14 kg and fit in your pocket</title>
+<meta name="description" content="Australian-designed reusable shopping bags made from 100% recyclable parachute-silk nylon. Carries 14 kg, folds smaller than your phone, 5-year guarantee. 24 colours, flat $10.95 shipping.">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<meta property="og:title" content="Ecosilk Bags — the reusable bag that refuses to end up in landfill">
+<meta property="og:description" content="Carries 14 kg, scrunches to pocket size, guaranteed 5 years. 100% recyclable parachute-silk nylon.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Leopard-Shark-Ecosilk-Shoulder-bags-colour-spread.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"Ecosilk Bags","url":"https://www.ecosilkbags.com.au/","email":"info@ecosilkbags.com.au","telephone":"+61439461919","address":{"@type":"PostalAddress","postOfficeBoxNumber":"6306","addressLocality":"South Lismore","addressRegion":"NSW","postalCode":"2480","addressCountry":"AU"},"founder":{"@type":"Person","name":"Emily Hay"},"foundingDate":"2001"}
+</script>
 </head>
 <body>
+<main id="main">
 
-<nav>
-  <div class="navrow">
-    <div class="logo">ecosilk</div>
-    <div class="navlinks">
-      <a href="index.html" class="active">Home</a>
-      <a href="shop.html">Shop</a>
-      <a href="about.html">Impact</a>
-      <a href="contact.html">Contact</a>
-    </div>
-    <a href="cart.html" class="cart-pill" data-cart-count>Bag · 0</a>
-  </div>
-</nav>
-
-<header class="hero">
-  <div class="eyebrow">24 colours. Zero plastic.</div>
-  <h1>The bag that folds into your <span class="pop">pocket</span> and refuses to end up in a landfill</h1>
-  <p>Parachute-strong nylon that carries 14kg, scrunches down smaller than your phone, and comes back for round two — every single day.</p>
-  <div class="swatch-wall" id="swatchWall"></div>
-</header>
-
-<div class="picked">
-  <div class="picked-inner">
-    <div class="picked-swatch" id="pickedSwatch"></div>
-    <span id="pickedName">Sea Green</span>
-    <span id="pickedPrice" style="opacity:0.7;">$12.99</span>
-    <a href="#" class="shop-cta" id="heroAddBtn">Add to bag</a>
-  </div>
-</div>
-
-<section>
-  <div class="wrap">
-    <h2 style="font-size:clamp(1.8rem,3.6vw,2.6rem);max-width:600px;">Built for people who actually use it. Every day. For years.</h2>
-    <div class="grid3">
-      <div class="card">
-        <div class="tag" style="background:var(--gold);">Strength</div>
-        <h3>Carries 14kg</h3>
-        <p>Your arm gives up before the bag does. Six bottles, a watermelon, a week's shop — no problem.</p>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">24 colours. Zero plastic. Since 2001.</span>
+        <h1>The bag that carries the whole shop and still fits in your <span class="accent">pocket</span></h1>
+        <p class="lede">Parachute-silk nylon that holds 14 kg, scrunches down smaller than your phone and is guaranteed for 5 years. One Ecosilk replaces up to 1,000 plastic bags.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="shop.html">Shop all bags</a>
+          <a class="btn btn-outline btn-lg" href="#why">Why it lasts</a>
+        </div>
+        <div class="hero-proof" aria-label="Key facts">
+          <div><strong>14 kg</strong>carry capacity</div>
+          <div><strong>5 yrs</strong>guaranteed</div>
+          <div><strong>100%</strong>recyclable nylon</div>
+          <div><strong>20+ yrs</strong>of repeat customers</div>
+        </div>
       </div>
-      <div class="card">
-        <div class="tag" style="background:var(--seagreen);color:#fff;">Pocketable</div>
-        <h3>Fits in your palm</h3>
-        <p>Scrunches down to nothing. Keep three in your bag and never get caught out again.</p>
-      </div>
-      <div class="card">
-        <div class="tag" style="background:var(--purple);color:#fff;">Built to last</div>
-        <h3>5-year guarantee</h3>
-        <p>Machine washable, no built-in expiry date. This isn't a bag you'll be replacing next year.</p>
+      <div class="hero-visual">
+        <div class="swatch-stage" aria-labelledby="stageName">
+          <div class="stage-img" id="stageImg" role="img" aria-label="Ecosilk shopping bag in the selected colour"></div>
+          <div class="stage-row">
+            <div><span class="small muted">Shopping Bag</span><div class="name" id="stageName">Sea Green</div></div>
+            <div style="display:flex;gap:var(--space-3);align-items:center;">
+              <span class="price" id="stagePrice">$12.99</span>
+              <button class="btn btn-dark" type="button" id="stageAdd">Add to bag</button>
+              <a class="btn btn-ghost" id="stageView" href="shop.html">View</a>
+            </div>
+          </div>
+          <div class="swatch-wall" id="swatchWall" role="radiogroup" aria-label="Pick a colour"></div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="band band-teal">
-  <h2>1 bag ≈ 1,000 plastic bags never used</h2>
-  <p>A slice of every sale goes to the Australian Marine Conservation Society. The reef's still here — let's keep it that way.</p>
-</section>
-
-<section id="reefCollection">
-  <div class="wrap">
-    <h2 style="font-size:clamp(1.6rem,3.2vw,2.2rem);margin-bottom:8px;">The Reef Collection</h2>
-    <p style="opacity:0.7;margin-bottom:24px;max-width:520px;">Every pack named after the species it helps protect. Same black tag you'd find in the bag, if you flipped it over.</p>
-    <div class="reef-grid" id="reefGrid"></div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <h2 style="font-size:clamp(1.6rem,3.2vw,2.2rem);margin-bottom:20px;">What people who actually own one say</h2>
-    <div class="testi-strip">
-      <div class="testi-card">"Strong enough for fruit and veg, pretty enough for everything else."<div class="who">Gaynor · Collingwood VIC</div></div>
-      <div class="testi-card">"The colours, the strength, the pocket-ness. Best reusable bag we've tried, full stop."<div class="who">Lorna · Enmore NSW</div></div>
-      <div class="testi-card">"Plastic bag free, every day, for years now."<div class="who">Judy · Kinglake West VIC</div></div>
+  <!-- TRUST -->
+  <div class="trust-strip" aria-label="Shopping reassurance">
+    <div class="wrap">
+      <span data-icon="truck"></span>
+      <span data-icon="shield"></span>
+      <span data-icon="recycle"></span>
+      <span data-icon="leaf"></span>
     </div>
   </div>
-</section>
 
-<div class="newsletter">
-  <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);">15% off your first order</h2>
-  <p style="opacity:0.8;">New colours before anyone else. No spam, ever.</p>
-  <form onsubmit="return false;">
-    <input type="email" placeholder="your@email.com">
-    <button>Join</button>
-  </form>
-</div>
+  <!-- BESTSELLERS -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div><span class="eyebrow">Start here</span><h2>Most-loved bags</h2><p>Pick a style, then your colour. Mix and match any 3 single bags and save 10%.</p></div>
+        <a class="btn btn-outline" href="shop.html">See the whole range</a>
+      </div>
+      <div class="product-grid" id="bestsellers"></div>
+    </div>
+  </section>
 
-<footer>
-  Made in Australia since 2001. 100% recyclable parachute silk. Acknowledging the Widjabul Wia-bul people of the Bundjalung nation, Traditional Owners of the land this business calls home.<br><br>
-  Prototype UI, R&amp;D build only — not the live site.
-</footer>
+  <!-- WHY -->
+  <section class="section" id="why" style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="story">
+        <div class="story-img reveal"><img src="https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Leopard-Shark-Ecosilk-Shoulder-bags-colour-spread.jpg" alt="Four Ecosilk shoulder bags fanned out in sea green, blue, teal and navy" loading="lazy" width="800" height="600"></div>
+        <div>
+          <span class="eyebrow">Built to be used, not replaced</span>
+          <h2>Your arm gives up before the bag does</h2>
+          <p>Emily Hay chose parachute-silk nylon in 1999 because nothing else was strong enough, light enough and colourfast enough to replace plastic for good. The first Ecosilk bag shipped in 2001. The design has barely needed to change since.</p>
+          <p>Machine wash it, line dry it, stuff it in a pocket. When it finally wears out, post it back to us and the nylon gets recycled.</p>
+          <div class="stat-grid">
+            <div class="stat"><strong>1,000</strong><span>plastic bags replaced per Ecosilk</span></div>
+            <div class="stat"><strong>55×32</strong><span>cm, expanding to 52 cm with gusset</span></div>
+            <div class="stat"><strong>24</strong><span>colours to choose from</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<script src="assets/catalog-data.js"></script>
-<script src="assets/app.js"></script>
+  <!-- COMPARE -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">Honest comparison</span><h2>How it stacks up against the usual suspects</h2></div></div>
+      <div style="overflow-x:auto;">
+      <table class="compare">
+        <thead><tr><th scope="col">Over 5 years</th><th scope="col" class="hl">Ecosilk</th><th scope="col">Supermarket "bag for life"</th><th scope="col">Cotton tote</th><th scope="col">Plastic bag</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Fits in a pocket</th><td class="yes hl">Yes</td><td class="no">Barely</td><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><th scope="row">Carries 14 kg</th><td class="yes hl">Yes</td><td class="no">Splits under heavy loads</td><td class="yes">Usually</td><td class="no">No</td></tr>
+          <tr><th scope="row">Machine washable</th><td class="yes hl">Yes, dries in minutes</td><td class="no">No</td><td class="yes">Yes, slowly</td><td class="no">No</td></tr>
+          <tr><th scope="row">Guaranteed</th><td class="yes hl">5 years</td><td class="no">No</td><td class="no">Rarely</td><td class="no">No</td></tr>
+          <tr><th scope="row">End of life</th><td class="yes hl">Post back, recycled</td><td class="no">Landfill</td><td class="no">Compost if 100% cotton</td><td class="no">Landfill or ocean</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT BAND -->
+  <section class="band">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow" style="color:var(--gold);">Every bag does its bit</span>
+        <h2>We back the people protecting the reef</h2>
+        <p>Ecosilk is a business supporter of the Australian Marine Conservation Society. Our Reef Collection packs are named after the species the AMCS works to protect, and plastic bags are one of the things they're protecting them from.</p>
+        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-6);">
+          <a class="btn btn-light" href="shop.html?group=packs">Shop the Reef Collection</a>
+          <a class="btn btn-outline" style="border-color:rgba(255,255,255,.6);color:#fff;" href="about.html">Our impact</a>
+        </div>
+      </div>
+      <div class="impact-counter" aria-live="off"><span id="impactNumber">0</span><small>single-use plastic bags one Ecosilk replaces over its life</small></div>
+    </div>
+  </section>
+
+  <!-- REEF COLLECTION -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div><span class="eyebrow">Reef Collection</span><h2>Colour packs named for the species they help</h2><p>Four or six coordinated colours in one pack, ready to gift or to stash in the car, the pram and the office drawer.</p></div>
+        <a class="btn btn-outline" href="shop.html?group=packs">All packs</a>
+      </div>
+      <div class="reef-grid" id="reefGrid"></div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="section" style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">From people who actually own one</span><h2>Twenty years of repeat customers</h2></div></div>
+      <div class="reviews">
+        <article class="review"><span class="stars" aria-label="5 stars">★★★★★</span><blockquote>"Strong enough for fruit and veg, pretty enough for everything else."</blockquote><div class="who"><b>Gaynor</b><span>Collingwood VIC</span></div></article>
+        <article class="review"><span class="stars" aria-label="5 stars">★★★★★</span><blockquote>"The colours, the strength, the pocket-ness. Best reusable bag we've tried, full stop."</blockquote><div class="who"><b>Lorna</b><span>Enmore NSW</span></div></article>
+        <article class="review"><span class="stars" aria-label="5 stars">★★★★★</span><blockquote>"Plastic bag free, every day, for years now."</blockquote><div class="who"><b>Judy</b><span>Kinglake West VIC</span></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SNIPPET -->
+  <section class="section">
+    <div class="wrap grid-2" style="align-items:start;">
+      <div><span class="eyebrow">Quick answers</span><h2>Things people ask before their first order</h2><p class="muted" style="margin-top:var(--space-3);">Still wondering? Ask the helper in the corner or <a href="faq.html">read the full FAQ</a>.</p></div>
+      <div class="faq-list">
+        <details><summary>How much is shipping?</summary><div class="a"><p>A flat $10.95 anywhere in Australia, and free when your order is $75 or more. Prices include GST.</p></div></details>
+        <details><summary>Will it really carry 14 kg?</summary><div class="a"><p>Yes. The shopping and shoulder bags are rated to 14 kg and guaranteed for at least 5 years of daily or weekly use. If the stitching fails in that time, we replace it.</p></div></details>
+        <details><summary>How do I wash it?</summary><div class="a"><p>Quick machine wash, line dry, cool iron only if you must. It dries in minutes.</p></div></details>
+        <details><summary>What happens when it finally wears out?</summary><div class="a"><p>Post it back to us. The nylon is endlessly recyclable, so it never needs to see landfill.</p></div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="section-tight">
+    <div class="wrap">
+      <div class="newsletter">
+        <div><h2>15% off your first order</h2><p>New colours, Reef Collection releases and the odd honest update. Nothing more.</p></div>
+        <form class="inline-form" data-newsletter data-source="home"><label class="visually-hidden" for="nlEmail">Email address</label><input id="nlEmail" type="email" autocomplete="email" placeholder="you@example.com" required><button class="btn btn-dark" type="submit">Get my code</button></form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/catalog-data.js"></script>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/assistant.js"></script>
 <script>
-  const bagColours = CATALOG.filter(p => p.category === 'Ecosilk Environmentally Friendly Shopping Bag');
-  const wall = document.getElementById('swatchWall');
-  let current = bagColours[0];
+(function () {
+  const E = window.Ecosilk;
+  // Trust strip icons
+  const trust = { truck: `Flat $10.95 shipping · free over $${E.CFG.FREE_SHIPPING_THRESHOLD}`, shield: "5-year guarantee on every bag", recycle: "Post it back, we recycle it", leaf: "Supporting the Australian Marine Conservation Society" };
+  document.querySelectorAll(".trust-strip [data-icon]").forEach(el => { const k = el.getAttribute("data-icon"); el.innerHTML = E.ICONS[k] + trust[k]; });
 
-  bagColours.forEach(p => {
-    const el = document.createElement('div');
-    el.className = 'swatch';
-    el.style.backgroundImage = `url('${p.image}')`;
-    el.title = p.color;
-    el.addEventListener('mouseenter', () => pick(p));
-    el.addEventListener('click', () => pick(p));
-    wall.appendChild(el);
-  });
-
-  function pick(p) {
+  // Hero colour stage
+  const bagColours = E.byCategory("Ecosilk Environmentally Friendly Shopping Bag").filter(p => p.inStock);
+  const wall = document.getElementById("swatchWall");
+  let current = bagColours.find(p => /sea green/i.test(p.color)) || bagColours[0];
+  function pick(p, focus) {
     current = p;
-    document.getElementById('pickedSwatch').style.backgroundImage = `url('${p.image}')`;
-    document.getElementById('pickedName').textContent = p.color;
-    document.getElementById('pickedPrice').textContent = '$' + p.price.toFixed(2);
+    document.getElementById("stageImg").style.backgroundImage = `url('${p.image}')`;
+    document.getElementById("stageImg").setAttribute("aria-label", E.altFor(p));
+    document.getElementById("stageName").textContent = p.color;
+    document.getElementById("stagePrice").textContent = E.money(p.price);
+    document.getElementById("stageView").href = E.productUrl(p);
+    wall.querySelectorAll(".swatch").forEach(b => { const on = b.dataset.sku === p.sku; b.setAttribute("aria-checked", String(on)); b.setAttribute("aria-pressed", String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
   }
-  pick(bagColours[0]);
-
-  document.getElementById('heroAddBtn').addEventListener('click', (e) => {
-    e.preventDefault();
-    addToCart(current.sku, 1);
-    e.target.textContent = 'Added ✓';
-    setTimeout(() => e.target.textContent = 'Add to bag', 900);
+  bagColours.forEach(p => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "swatch"; b.setAttribute("role", "radio"); b.dataset.sku = p.sku;
+    b.style.backgroundImage = `url('${p.image}')`; b.setAttribute("aria-label", p.color); b.title = p.color;
+    b.addEventListener("click", () => pick(p)); b.addEventListener("mouseenter", () => pick(p));
+    b.addEventListener("keydown", e => { const i = bagColours.indexOf(p); if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); pick(bagColours[(i + 1) % bagColours.length], true); } if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); pick(bagColours[(i - 1 + bagColours.length) % bagColours.length], true); } });
+    wall.appendChild(b);
   });
+  pick(current);
+  document.getElementById("stageAdd").addEventListener("click", e => { E.addToCart(current.sku, 1); E.toast(`${E.displayTitle(current)} added to your bag`, { href: "cart.html", label: "View bag" }); e.target.textContent = "Added"; setTimeout(() => e.target.textContent = "Add to bag", 1200); });
 
-  // Reef Collection — real animal-pack data, black swing-tag styling
-  const reefPacks = [{"name": "Leopard Shark", "price": 60.0, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Leopard-Shark-Ecosilk-Shoulder-bags-colour-spread.jpg", "category": "Shoulder Bags 4 Pack"}, {"name": "Anemone", "price": 60.0, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Anenome-Ecosilk-Shoulder-bags-colour-spread.jpg", "category": "Shoulder Bags 4 Pack"}, {"name": "Octopus", "price": 60.0, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Octopus-Ecosilk-Shoulder-bags-colour-spread.jpg", "category": "Shoulder Bags 4 Pack"}, {"name": "Crab", "price": 60.0, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Crab-Ecosilk-Shoulder-bags-colour-spread.jpg", "category": "Shoulder Bags 4 Pack"}, {"name": "Crown Of Thorns", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Crown-of-Thorns-Ecosilk-Shopping-bags-colour-spread.jpg", "category": "Shopping Bags 4 Pack"}, {"name": "Jellyfish", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Jellyfish-Ecosilk-Shopping-bags-colour-spread.jpg", "category": "Shopping Bags 4 Pack"}, {"name": "Clownfish", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Clownfish-Ecosilk-Shopping-bags-colour-spread.jpg", "category": "Shopping Bags 4 Pack"}, {"name": "Seahorse", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2022/10/Seahorse-Ecosilk-Shopping-bags-colour-spread.jpg", "category": "Shopping Bags 4 Pack"}, {"name": "Starfish", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2019/09/Starfish-Shopping-pack-of-4-SQUARE-350x350.jpg", "category": "Shopping Bags 4 Pack"}, {"name": "Turtle", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2019/09/Turtle-Shopping-pack-of-4-SQUARE-350x350.jpg", "category": "Shopping Bags 4 Pack"}, {"name": "Coral", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2019/09/Coral-Shopping-pack-of-4-SQUARE-350x350.jpg", "category": "Shopping Bags 4 Pack"}, {"name": "Shoal", "price": 51.5, "image": "https://www.ecosilkbags.com.au/wp-content/uploads/2019/09/Shoal-Shopping-pack-of-4-SQUARE-350x350.jpg", "category": "Shopping Bags 4 Pack"}];
-  document.getElementById('reefGrid').innerHTML = reefPacks.map(p => `
-    <div class="reef-card">
-      <div class="reef-photo" style="background-image:url('${p.image}')"></div>
-      <div class="reef-badge">
-        <img src="assets/logo-icon.png" alt="" style="height:22px;width:22px;">
-        <span>ecosilk</span>
-      </div>
-      <div class="reef-info">
-        <div class="reef-name">${p.name}</div>
-        <div class="reef-price">$${p.price.toFixed(2)}</div>
-      </div>
-    </div>
-  `).join('');
+  // Bestsellers: the five single-bag families + travel pouch idea
+  const cards = E.cards();
+  const picks = ["Ecosilk Environmentally Friendly Shopping Bag", "Shoulder Beach Bags", "Ecosilk Environmentally Friendly Fruit &amp; Vegie Bag", "Drawstring Bags"];
+  const badges = { "Ecosilk Environmentally Friendly Shopping Bag": "Bestseller", "Shoulder Beach Bags": "Most gifted" };
+  document.getElementById("bestsellers").innerHTML = picks.map(cat => { const c = cards.find(x => x.category === cat); return c ? E.productCard(c, { badge: badges[cat] }) : ""; }).join("");
+
+  // Reef collection (4 packs)
+  const packs = cards.filter(c => c.type === "pack" && c.product.inStock && /Leopard|Anemone|Octopus|Turtle/i.test(c.product.name)).slice(0, 4);
+  document.getElementById("reefGrid").innerHTML = packs.map(c => { const p = c.product; return `<article class="reef-card"><div class="photo" style="background-image:url('${p.image}')" role="img" aria-label="${E.altFor(p)}"></div><div class="tag"><img src="assets/img/logo-icon-t.png" alt="" width="20" height="20">Reef Collection</div><div class="body"><a href="${E.productUrl(p)}">${p.name.replace(/\s*-\s*Pack of \d+/i, "").replace(/Shoulder Bags? |Shopping Bags? /i, "")}</a><span class="price">${E.money(p.price)}</span></div></article>`; }).join("");
+
+  // Impact counter: ~ bags sold estimate × 1,000, animated once
+  const el = document.getElementById("impactNumber"); const target = 1000; let started = false;
+  const run = () => { if (started) return; started = true; const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; if (reduce) { el.textContent = target.toLocaleString("en-AU"); return; } const t0 = performance.now(); const step = now => { const k = Math.min(1, (now - t0) / 1800); const v = Math.round(target * (1 - Math.pow(1 - k, 3))); el.textContent = v.toLocaleString("en-AU"); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
+  if ("IntersectionObserver" in window) new IntersectionObserver((en, io) => { if (en[0].isIntersecting) { run(); io.disconnect(); } }).observe(el); else run();
+})();
 </script>
 </body>
 </html>
