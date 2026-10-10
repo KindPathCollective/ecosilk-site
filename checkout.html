@@ -200,7 +200,13 @@
         onApprove: async (data, actions) => {
           status.textContent = "Confirming payment…";
           const details = await actions.order.capture();
-          await completeOrder({ method: "paypal", status: "PAID", id: details.id, payer: details.payer && details.payer.email_address, env: CFG.PAYPAL_ENV });
+          const captures = (details.purchase_units || []).flatMap(unit => (unit.payments && unit.payments.captures) || []);
+          const capture = captures.find(item => item.status === "COMPLETED");
+          if (details.status !== "COMPLETED" || !capture) {
+            status.textContent = "Payment is not completed yet. Please check PayPal before retrying; no fulfilled order has been recorded.";
+            return;
+          }
+          await completeOrder({ method: "paypal", status: "PAID", id: capture.id, orderId: details.id, captureId: capture.id, payer: details.payer && details.payer.email_address, env: CFG.PAYPAL_ENV });
         },
         onError: err => { status.textContent = "PayPal couldn't start. You can still place a test order below while we sort it out."; console.error(err); document.getElementById("testPay").hidden = false; },
         onCancel: () => { status.textContent = "Payment cancelled — nothing was charged."; }

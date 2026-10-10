@@ -45,6 +45,33 @@ Testing: use a PayPal sandbox **business** app's client ID and pay with a sandbo
 Launch: swap to the live client ID and set `PAYPAL_ENV: "live"`, `TEST_MODE: false`.
 Payment capture happens client-side via PayPal Buttons; the order email records PayPal's capture ID.
 
+### Existing sandbox automation handover
+
+The sandbox client ID supplied in the handover is configured in `config.js`.
+No PayPal client secret is stored in this repository. The handover identifies:
+
+- Inventory ledger: https://docs.google.com/spreadsheets/d/1ocRweWN_gBlzv2gb4WtinX1sWzJTxFCJ_dn3UkBGu_g/edit
+- Apps Script project ID: `1uBgQra4ADrUbU8faOR8kvrUJBuZdC6ex9SPespPnRmWf28yAOZFZ2TOw`
+- PayPal webhook ID: `8WX66878RJ855574D`
+- Reported subscriptions: `CHECKOUT.ORDER.APPROVED` and `PAYMENT.CAPTURE.COMPLETED`
+
+These webhook settings are supplied by the handover, not independently verified.
+The Sheet was inspected on 11 October 2026 and contained a single `Untitled`
+inventory tab with SKU, Name, Variant, Price and Stock columns.
+Apps Script source and deployment settings still need review before claiming
+payment-to-ledger integration works.
+
+The storefront deliberately does not POST browser order data to the PayPal webhook.
+The no-payment test button must never simulate a payment event or reduce stock.
+Only a genuine completed sandbox capture can exercise the existing webhook path.
+The local order stores the PayPal order ID and completed capture ID separately,
+and does not mark pending captures as paid.
+
+Next verification: review webhook signature verification and idempotency in Apps
+Script, perform an authenticated sandbox-buyer checkout, and reconcile the capture
+ID, currency, amount, SKU quantities and exactly-once inventory change in the Sheet.
+An approved order alone must not trigger paid fulfilment or inventory reduction.
+
 ### AI worker (Cloudflare, free tier)
 
 ```bash

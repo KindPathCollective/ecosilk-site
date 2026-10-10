@@ -14,7 +14,7 @@ window.ECOSILK_CONFIG = {
   // "sb" is PayPal's generic sandbox test client. Replace with your own sandbox
   // client ID from developer.paypal.com → Apps & Credentials, then with the LIVE
   // client ID when you go live. Set PAYPAL_ENV to "live" at the same time.
-  PAYPAL_CLIENT_ID: "sb",
+  PAYPAL_CLIENT_ID: "AZ2QiaVg4WCQ6hMBvllDmWiYp7jVIvqFMcf2czr1-KDKz7YPkI70nauA7MFJwcpkZ0Y9KHlRA6ohzvzc",
   PAYPAL_ENV: "sandbox",
   CURRENCY: "AUD",
 
