@@ -160,6 +160,21 @@ test('Stripe order records order and stock together', () => {
   assert.equal(row[2], 'ESG x2'); assert.equal(row[3], '=IMPORTXML("bad") Tester');
   assert.equal(t.state.released, 1);
 });
+test('Stripe order carries ref, gift flag, free gift and notes in the Items cell', () => {
+  const t = stripeSetup(); Object.assign(t.stripe.order, { ref: 'ES261011-RX71', notes: 'Leave at door', gift: true, gifts: 'Free drawstring bag (4+ shoulder bags)' });
+  assert.equal(t.send().status, 'ok');
+  assert.equal(t.state.rows[1][2], 'ESG x2 | ref ES261011-RX71 | GIFT: leave prices off packing slip | FREE GIFT: Free drawstring bag (4+ shoulder bags) | NOTE: Leave at door');
+});
+test('Stripe order without extras keeps the plain Items summary', () => {
+  const t = stripeSetup(); assert.equal(t.send().status, 'ok'); assert.equal(t.state.rows[1][2], 'ESG x2');
+});
+test('Stripe notes are stored as literal text, control characters stripped, length capped', () => {
+  const t = stripeSetup(); Object.assign(t.stripe.order, { notes: '=HYPERLINK("http://evil")\n\tline2' + 'x'.repeat(500), ref: { bad: 1 }, gifts: 42 });
+  assert.equal(t.send().status, 'ok');
+  const cell = t.state.rows[1][2];
+  assert.ok(cell.includes('NOTE: =HYPERLINK("http://evil")  line2')); assert.ok(!/[\n\t]/.test(cell));
+  assert.ok(cell.length < 400); assert.ok(!cell.includes('ref ')); assert.ok(!cell.includes('FREE GIFT'));
+});
 test('Stripe order with discount and free shipping reconciles', () => {
   const t = stripeSetup(); Object.assign(t.stripe.order, { discountCents: 390, shippingCents: 0, totalCents: 2208 });
   assert.equal(t.send().status, 'ok'); assert.equal(t.state.rows[1][6], 22.08);

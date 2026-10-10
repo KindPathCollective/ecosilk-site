@@ -97,6 +97,26 @@ test("sessionToLedgerOrder treats a missing livemode flag as live (so the ledger
   assert.equal(sessionToLedgerOrder(paidSession(), "false", PRODUCT_INDEX).livemode, true);
   assert.equal(sessionToLedgerOrder(paidSession(), false, PRODUCT_INDEX).livemode, false);
 });
+test("sessionToLedgerOrder prefers the address confirmed on Stripe's page", () => {
+  const session = paidSession({ shipping_details: { name: "F. Filet", address: { line1: "9 New Rd", line2: "Unit 2", city: "Byron Bay", state: "NSW", postal_code: "2481", country: "AU" } } });
+  const o = sessionToLedgerOrder(session, false, PRODUCT_INDEX);
+  assert.deepEqual(o.address, { line1: "9 New Rd", line2: "Unit 2", city: "Byron Bay", state: "NSW", postcode: "2481", country: "AU" });
+  assert.equal(o.customer.name, "F. Filet");
+});
+test("sessionToLedgerOrder reads the newer collected_information shape too", () => {
+  const session = paidSession({ collected_information: { shipping_details: { name: "N. Shape", address: { line1: "1 Api Ln", city: "Lismore", state: "NSW", postal_code: "2480", country: "AU" } } } });
+  assert.equal(sessionToLedgerOrder(session, false, PRODUCT_INDEX).address.line1, "1 Api Ln");
+});
+test("sessionToLedgerOrder falls back to the form address when Stripe has none", () => {
+  const o = sessionToLedgerOrder(paidSession(), false, PRODUCT_INDEX);
+  assert.equal(o.address.line1, "1 Test St"); assert.equal(o.address.postcode, "2480");
+});
+test("sessionToLedgerOrder forwards ref, notes and gift info for fulfilment", () => {
+  const o = sessionToLedgerOrder(paidSession({ metadata: { cart: "ESG:1", order: "ES261011-RX71", notes: "Leave at door", gift: "yes", gifts: "Free drawstring bag" } }), false, PRODUCT_INDEX);
+  assert.deepEqual([o.ref, o.notes, o.gift, o.gifts], ["ES261011-RX71", "Leave at door", true, "Free drawstring bag"]);
+  const plain = sessionToLedgerOrder(paidSession(), false, PRODUCT_INDEX);
+  assert.deepEqual([plain.ref, plain.notes, plain.gift, plain.gifts], ["", "", false, ""]);
+});
 test("sessionToLedgerOrder rejects unknown SKUs", () => assert.throws(() => sessionToLedgerOrder(paidSession({ metadata: { cart: "NOPE:1" } }), false, PRODUCT_INDEX), /Unknown SKU/));
 
 test("handleStripeEvent forwards a paid session to the ledger with the shared token", async () => {

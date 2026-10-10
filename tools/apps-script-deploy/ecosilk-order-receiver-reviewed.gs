@@ -347,7 +347,17 @@ function recordWorkerOrder_(order) {
     throw new Error('Total arithmetic mismatch');
   const customer = order.customer || {};
   const addr = order.address || {};
-  const itemsSummary = order.items.map(i => `${i.sku} x${i.qty}`).join(', ');
+  // Customer-facing ref, packing notes and gift flag travel in the Items cell so nothing is lost
+  // and the Orders schema stays unchanged. Typed string cells keep any text literal.
+  const text_ = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max) : '');
+  const ref = text_(order.ref, 40);
+  const notes = text_(order.notes, 300);
+  const gifts = text_(order.gifts, 200);
+  const itemsSummary = order.items.map(i => `${i.sku} x${i.qty}`).join(', ')
+    + (ref ? ` | ref ${ref}` : '')
+    + (order.gift === true ? ' | GIFT: leave prices off packing slip' : '')
+    + (gifts ? ` | FREE GIFT: ${gifts}` : '')
+    + (notes ? ` | NOTE: ${notes}` : '');
   const address = [addr.line1, addr.line2, addr.city, addr.state, addr.postcode, addr.country]
     .filter(Boolean).join(', ');
   const rowValues = [order.id, new Date().toISOString(), itemsSummary,

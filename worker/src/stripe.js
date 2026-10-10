@@ -126,6 +126,9 @@ export function sessionToLedgerOrder(session, livemode, catalog) {
   });
   const details = session.customer_details || {};
   const td = session.total_details || {};
+  // The address the shopper confirmed on Stripe's page wins; the pre-redirect form is only a fallback.
+  const shipping = session.shipping_details || (session.collected_information && session.collected_information.shipping_details) || null;
+  const sa = (shipping && shipping.address) || null;
   return {
     id: session.id,
     paymentId: session.payment_intent,
@@ -135,8 +138,14 @@ export function sessionToLedgerOrder(session, livemode, catalog) {
     shippingCents: td.amount_shipping || 0,
     discountCents: td.amount_discount || 0,
     items,
-    customer: { name: m.name || details.name || "", email: details.email || session.customer_email || "" },
-    address: { line1: m.addr1, line2: m.addr2, city: m.city, state: m.state, postcode: m.postcode, country: "AU" }
+    ref: m.order || "",
+    notes: m.notes || "",
+    gift: m.gift === "yes",
+    gifts: m.gifts || "",
+    customer: { name: (shipping && shipping.name) || m.name || details.name || "", email: details.email || session.customer_email || "" },
+    address: sa
+      ? { line1: sa.line1, line2: sa.line2, city: sa.city, state: sa.state, postcode: sa.postal_code, country: sa.country || "AU" }
+      : { line1: m.addr1, line2: m.addr2, city: m.city, state: m.state, postcode: m.postcode, country: "AU" }
   };
 }
 

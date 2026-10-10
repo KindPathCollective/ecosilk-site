@@ -195,6 +195,7 @@
           gifts: totals.gifts.map(g => ({ sku: g.sku, name: E.displayTitle(g.product), label: g.label })),
           subtotal: totals.subtotal, volumeDiscount: totals.volumeDiscount, discount: totals.discount, code: totals.code || "", shipping: totals.shipping, gst: totals.gst, total: totals.total, currency: CFG.CURRENCY, testMode: false });
         E.track("begin_checkout", { currency: "AUD", value: totals.total });
+        if (cust.optin) E.submitForm("newsletter", { email: cust.email, source: "checkout", _subject: "New Ecosilk subscriber (checkout)" });
         location.href = out.url;
       } catch (err) {
         status.textContent = err.message || "Couldn't start checkout."; btn.disabled = false; btn.textContent = "Pay securely with Stripe";
