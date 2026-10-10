@@ -40,7 +40,7 @@ Stripe ──signed webhook──▶ Worker /stripe-webhook ──token──▶
 
 ## Notes and limits
 
-- **Unverified against real Stripe until your first test:** session parameters (shipping rate, coupon, address collection) are built to Stripe's documented API but were only exercised against mocks. Expect to read Stripe's error text once if anything is rejected. Stripe's hosted page will also ask for the shipping address again.
+- **Session creation was verified against Stripe's test API** (single ESG → `amount_total` 2394; with a 195¢ coupon → 2199, `amount_discount` 195, `amount_shipping` 1095). **Webhook delivery and the Worker→Sheet hand-off have not run end to end yet** — that is what your first test checkout proves. Stripe's hosted page will also ask for the shipping address again.
 
 - The `PayPal Environment` column holds `stripe-test` for Stripe rows (header left unchanged on purpose).
 - Prices, discounts and shipping are computed on the Worker; `test/worker-pricing.test.mjs` fails if
