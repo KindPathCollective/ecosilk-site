@@ -58,9 +58,12 @@
 (function () {
   const E = window.Ecosilk; const CFG = E.CFG;
   const o = E.getLastOrder();
+  const back = new URLSearchParams(location.search);
+  if (back.get("paid") === "1" && back.get("session_id")) { E.clearCart(); E.clearPromo(); } // returning from Stripe Checkout
   if (!o) { document.getElementById("thanksTitle").textContent = "No recent order found"; document.getElementById("thanksSub").innerHTML = 'Head to the <a href="shop.html">shop</a> to start one.'; document.getElementById("aiNote").hidden = true; return; }
   document.getElementById("orderNo").textContent = o.number;
   if (o.testMode) { document.getElementById("thanksTitle").textContent = `Test order placed, ${o.customer.firstName}`; document.getElementById("thanksSub").textContent = "This was a dummy-run order: nothing was charged. Everything else ran exactly as it will for a real customer."; }
+  else if (o.payment && o.payment.method === "stripe") { document.getElementById("thanksTitle").textContent = `Thanks ${o.customer.firstName}, your payment is being confirmed`; document.getElementById("thanksSub").textContent = "Stripe is confirming your payment now. Your order is recorded as soon as that completes, and we'll be in touch if anything needs checking."; }
   else document.getElementById("thanksTitle").textContent = `Thanks ${o.customer.firstName}, your bags are on their way`;
   document.getElementById("orderLines").innerHTML = o.lines.map(l => `<div class="kv"><span>${l.qty} × ${l.name}</span><span>${E.money(l.total)}</span></div>`).join("") + (o.gifts || []).map(g => `<div class="kv"><span>1 × ${g.name} <span class="badge badge-green">Free</span></span><span>$0.00</span></div>`).join("");
   const sav = (o.discount || 0) + (o.volumeDiscount || 0);

@@ -4,6 +4,8 @@
      POST /assistant   shopping helper chat
      POST /order-note  personalised thank-you + packing note
      POST /digest      back-office: weekly digest, low-stock nudges, order summaries
+     POST /create-session  Stripe Checkout session, priced server-side (test mode only)
+     POST /stripe-webhook  Stripe → verified signature → order ledger (Apps Script)
      GET  /health
    Env vars (set with `wrangler secret put` / wrangler.toml [vars]):
      AI_PROVIDER      "openai" | "anthropic"
@@ -13,6 +15,8 @@
      ALLOWED_ORIGINS  comma-separated list, e.g. "https://kindpathcollective.github.io,https://www.ecosilkbags.com.au"
    ============================================================ */
 import { CATALOG_SUMMARY, PRODUCT_INDEX } from "./catalog.js";
+import { CartError } from "./pricing.js";
+import { createCheckoutSession, verifyWebhook, handleStripeEvent, StripeError } from "./stripe.js";
 
 const BUSINESS = {
   name: "Ecosilk Bags", email: "info@ecosilkbags.com.au", phone: "0439 461 919",
@@ -146,14 +150,26 @@ export async function handleRequest(request, env) {
   try {
     if (request.method === "GET" && (path === "/health" || path === "/")) return new Response(JSON.stringify({ ok: true, provider: env.AI_PROVIDER || "openai", model: env.AI_MODEL || null, products: Object.keys(PRODUCT_INDEX).length }), { headers });
     if (request.method !== "POST") return new Response(JSON.stringify({ error: "method" }), { status: 405, headers });
+    if (path === "/stripe-webhook") {
+      // Server-to-server: raw body is needed for the signature, and no CORS headers are offered.
+      const raw = await request.text();
+      let event;
+      try { event = await verifyWebhook(raw, request.headers.get("stripe-signature"), env.STRIPE_WEBHOOK_SECRET); }
+      catch (e) { return new Response(JSON.stringify({ error: "invalid signature" }), { status: 400, headers: { "content-type": "application/json" } }); }
+      const out = await handleStripeEvent(env, event, PRODUCT_INDEX);
+      return new Response(JSON.stringify({ status: out.status }), { status: out.httpStatus, headers: { "content-type": "application/json" } });
+    }
     const body = await request.json().catch(() => ({}));
     let out;
     if (path === "/assistant") out = await handleAssistant(env, body);
     else if (path === "/order-note") out = await handleOrderNote(env, body);
     else if (path === "/digest") out = await handleDigest(env, body);
+    else if (path === "/create-session") out = await createCheckoutSession(env, body, PRODUCT_INDEX);
     else return new Response(JSON.stringify({ error: "not found" }), { status: 404, headers });
     return new Response(JSON.stringify(out), { headers });
   } catch (e) {
+    if (e instanceof CartError) return new Response(JSON.stringify({ error: e.message }), { status: 400, headers });
+    if (e instanceof StripeError) { console.error(e.message); return new Response(JSON.stringify({ error: "Payments are unavailable right now." }), { status: 502, headers }); }
     return new Response(JSON.stringify({ error: String(e.message || e) }), { status: 500, headers });
   }
 }

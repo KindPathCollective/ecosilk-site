@@ -136,4 +136,62 @@ test('Setup check refuses missing merchant configuration', () => {
   assert.throws(() => t.context.checkSandboxReceiverSetup(), /PAYPAL_MERCHANT_ID/);
   assert.equal(t.state.writes, 0);
 });
+
+// ---- Stripe orders forwarded by the Worker ----
+const TOKEN = 'x'.repeat(40);
+function stripeSetup() {
+  const t = setup(); t.props.ORDER_SINK_TOKEN = TOKEN;
+  t.stripe = { source: 'ecosilk-worker', token: TOKEN, order: {
+    id: 'cs_test_a1B2c3D4e5F6', paymentId: 'pi_3Abc123Def456', livemode: false, currency: 'AUD',
+    totalCents: 3693, shippingCents: 1095, discountCents: 0,
+    items: [{ sku: 'ESG', qty: 2, unitCents: 1299 }],
+    customer: { name: '=IMPORTXML("bad") Tester', email: 'test@example.com' },
+    address: { line1: '1 Test St', city: 'Lismore', state: 'NSW', postcode: '2480', country: 'AU' }
+  } };
+  t.send = () => t.post(t.stripe);
+  return t;
+}
+test('Stripe order records order and stock together', () => {
+  const t = stripeSetup(); assert.equal(t.send().status, 'ok');
+  assert.equal(t.state.writes, 1); assert.equal(t.state.inventory[1][4], 18);
+  const row = t.state.rows[1];
+  assert.equal(row[0], 'cs_test_a1B2c3D4e5F6'); assert.equal(row[9], 'pi_3Abc123Def456');
+  assert.equal(row[6], 36.93); assert.equal(row[10], 'AUD'); assert.equal(row[11], 'stripe-test');
+  assert.equal(row[2], 'ESG x2'); assert.equal(row[3], '=IMPORTXML("bad") Tester');
+  assert.equal(t.state.released, 1);
+});
+test('Stripe order with discount and free shipping reconciles', () => {
+  const t = stripeSetup(); Object.assign(t.stripe.order, { discountCents: 390, shippingCents: 0, totalCents: 2208 });
+  assert.equal(t.send().status, 'ok'); assert.equal(t.state.rows[1][6], 22.08);
+});
+test('Stripe replay does not decrement twice', () => {
+  const t = stripeSetup(); t.send();
+  assert.equal(t.send().status, 'duplicate_ignored'); assert.equal(t.state.writes, 1);
+  assert.equal(t.state.inventory[1][4], 18);
+});
+for (const [name, mutate] of [
+  ['Wrong token', t => t.stripe.token = 'y'.repeat(40)],
+  ['Missing token', t => delete t.stripe.token],
+  ['Unconfigured token', t => delete t.props.ORDER_SINK_TOKEN],
+  ['Short configured token', t => { t.props.ORDER_SINK_TOKEN = 'short'; t.stripe.token = 'short'; }],
+  ['Live-mode Stripe order', t => t.stripe.order.livemode = true],
+  ['Missing livemode flag', t => delete t.stripe.order.livemode],
+  ['Live session ID', t => t.stripe.order.id = 'cs_live_a1B2c3D4e5F6'],
+  ['Malformed payment ID', t => t.stripe.order.paymentId = 'ch_123'],
+  ['Stripe wrong currency', t => t.stripe.order.currency = 'USD'],
+  ['Stripe unknown SKU', t => t.stripe.order.items[0].sku = 'UNKNOWN'],
+  ['Stripe price mismatch', t => t.stripe.order.items[0].unitCents = 100],
+  ['Stripe fractional quantity', t => t.stripe.order.items[0].qty = 1.5],
+  ['Stripe zero quantity', t => t.stripe.order.items[0].qty = 0],
+  ['Stripe total mismatch', t => t.stripe.order.totalCents = 100],
+  ['Stripe negative discount', t => t.stripe.order.discountCents = -5],
+  ['Stripe insufficient stock', t => t.state.inventory[1][4] = 1],
+  ['Stripe atomic write failure', t => t.state.failBatch = true],
+  ['Stripe lock contention', t => t.state.lockBusy = true],
+  ['Stripe wrong Orders headers', t => t.state.rows[0][0] = 'Wrong']
+]) test(name + ' leaves ledger unchanged', () => {
+  const t = stripeSetup(); mutate(t); const before = JSON.stringify([t.state.rows, t.state.inventory]);
+  assert.equal(t.send().status, 'error'); assert.equal(t.state.writes, 0);
+  assert.equal(JSON.stringify([t.state.rows, t.state.inventory]), before);
+});
 console.log(`${passed} offline tests passed. No real checkout or deployed webhook was tested.`);

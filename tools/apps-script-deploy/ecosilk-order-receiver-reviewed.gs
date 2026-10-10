@@ -73,6 +73,19 @@ function doPost(e) {
     if (!e || !e.postData || typeof e.postData.contents !== 'string' ||
         e.postData.contents.length > 100000) throw new Error('Invalid webhook body');
     const event = JSON.parse(e.postData.contents);
+
+    // Orders forwarded by the Ecosilk Worker after it verified a Stripe webhook
+    // signature. Authenticated by a shared secret; Stripe test mode only.
+    if (event && event.source === 'ecosilk-worker') {
+      assertWorkerToken_(event.token);
+      const workerOrder = validateWorkerOrder_(event.order);
+      lock = LockService.getScriptLock();
+      if (!lock.tryLock(20000)) throw new Error('Receiver busy; reconcile this order');
+      if (orderAlreadyLogged_(workerOrder.id)) return respond_('duplicate_ignored');
+      recordWorkerOrder_(workerOrder);
+      return respond_('ok');
+    }
+
     const relevant = ['PAYMENT.CAPTURE.COMPLETED', 'CHECKOUT.ORDER.APPROVED'];
 
     if (relevant.indexOf(event.event_type) === -1) {
@@ -222,17 +235,7 @@ function recordOrder(verifiedOrder) {
 
   const items = pu.items || [];
   if (!Array.isArray(items) || !items.length || items.length > 100) throw new Error('Missing or excessive items');
-  const data = inventorySheet.getDataRange().getValues();
-  const inventory = {};
-  for (let row = 1; row < data.length; row++) {
-    const sku = String(data[row][0] || '').trim();
-    if (!sku) continue;
-    if (inventory[sku]) throw new Error(`Duplicate inventory SKU: ${sku}`);
-    const stock = Number(data[row][4]);
-    if (data[row][4] === '' || !Number.isSafeInteger(stock) || stock < 0)
-      throw new Error(`Invalid stock: ${sku}`);
-    inventory[sku] = { row, stock, price: cents_(String(data[row][3])) };
-  }
+  const inventory = loadInventory_(inventorySheet);
   const quantities = {};
   let itemCents = 0;
   items.forEach(item => {
@@ -280,6 +283,105 @@ function recordOrder(verifiedOrder) {
     '', // tracking — filled in manually once packed/shipped
     capture.id, expectedCurrency, paypalEnv_()
   ];
+  commitLedger_(ordersSheet, inventorySheet, inventory, quantities, rowValues);
+
+  const notifyEmail = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
+  if (notifyEmail) {
+    try {
+      MailApp.sendEmail(notifyEmail, `[SANDBOX] New order ${verifiedOrder.id}`, itemsSummary);
+    } catch (err) {
+      // Email failure cannot roll back a successfully recorded order.
+      logError_(`Order ${verifiedOrder.id} recorded; notification failed`);
+    }
+  }
+}
+
+// ---- STRIPE ORDERS (forwarded by the Worker) ------------------------------
+function assertWorkerToken_(token) {
+  const expected = PropertiesService.getScriptProperties().getProperty('ORDER_SINK_TOKEN');
+  if (!expected || expected.length < 32) throw new Error('ORDER_SINK_TOKEN missing or too short');
+  const given = typeof token === 'string' ? token : '';
+  let diff = given.length === expected.length ? 0 : 1;
+  for (let i = 0; i < expected.length; i++) {
+    diff |= (given.charCodeAt(i) || 0) ^ expected.charCodeAt(i);
+  }
+  if (diff !== 0) throw new Error('Unauthorised worker order');
+}
+
+function validateWorkerOrder_(order) {
+  const expectedCurrency = PropertiesService.getScriptProperties().getProperty('EXPECTED_CURRENCY') || 'AUD';
+  if (!order || order.livemode !== false) throw new Error('Test-mode orders only');
+  if (typeof order.id !== 'string' || !/^cs_test_[A-Za-z0-9_]{8,200}$/.test(order.id)) throw new Error('Invalid session ID');
+  if (typeof order.paymentId !== 'string' || !/^pi_[A-Za-z0-9_]{8,200}$/.test(order.paymentId)) throw new Error('Invalid payment ID');
+  if (order.currency !== expectedCurrency) throw new Error('Currency mismatch');
+  if (!Array.isArray(order.items) || !order.items.length || order.items.length > 100) throw new Error('Missing or excessive items');
+  ['totalCents', 'shippingCents', 'discountCents'].forEach(key => {
+    if (!Number.isSafeInteger(order[key]) || order[key] < 0) throw new Error(`Invalid ${key}`);
+  });
+  if (order.totalCents <= 0) throw new Error('Invalid order total');
+  return order;
+}
+
+function recordWorkerOrder_(order) {
+  const ss = SpreadsheetApp.openById(sheetId_());
+  const ordersSheet = ss.getSheetByName('Orders');
+  const inventorySheet = ss.getSheetByName('Inventory');
+  if (!ordersSheet || !inventorySheet) throw new Error('Missing Orders or Inventory tab');
+  assertHeaders_(ordersSheet, ['Order ID', 'Date', 'Items (SKU x qty)',
+    'Customer Name', 'Email', 'Address', 'Total', 'Status', 'Tracking',
+    'Capture ID', 'Currency', 'PayPal Environment']);
+  assertHeaders_(inventorySheet, ['SKU', 'Name', 'Variant', 'Price', 'Stock']);
+  if (typeof Sheets === 'undefined') throw new Error('Enable Advanced Google Sheets service');
+  const inventory = loadInventory_(inventorySheet);
+  const quantities = {};
+  let itemCents = 0;
+  order.items.forEach(item => {
+    const sku = String(item.sku || '');
+    if (!inventory[sku]) throw new Error(`Unknown SKU: ${sku}`);
+    if (!Number.isSafeInteger(item.qty) || item.qty < 1 || item.qty > 1000) throw new Error('Invalid quantity');
+    if (item.unitCents !== inventory[sku].price) throw new Error(`Price mismatch: ${sku}`);
+    quantities[sku] = (quantities[sku] || 0) + item.qty;
+    itemCents += inventory[sku].price * item.qty;
+  });
+  if (itemCents - order.discountCents + order.shippingCents !== order.totalCents)
+    throw new Error('Total arithmetic mismatch');
+  const customer = order.customer || {};
+  const addr = order.address || {};
+  const itemsSummary = order.items.map(i => `${i.sku} x${i.qty}`).join(', ');
+  const address = [addr.line1, addr.line2, addr.city, addr.state, addr.postcode, addr.country]
+    .filter(Boolean).join(', ');
+  const rowValues = [order.id, new Date().toISOString(), itemsSummary,
+    customer.name || '', customer.email || '', address, order.totalCents / 100,
+    'PAID / awaiting fulfilment', '', order.paymentId, order.currency, 'stripe-test'];
+  commitLedger_(ordersSheet, inventorySheet, inventory, quantities, rowValues);
+
+  const notifyEmail = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
+  if (notifyEmail) {
+    try {
+      MailApp.sendEmail(notifyEmail, `[STRIPE TEST] New order ${order.id}`, itemsSummary);
+    } catch (err) {
+      logError_(`Order ${order.id} recorded; notification failed`);
+    }
+  }
+}
+
+// ---- SHARED LEDGER HELPERS (used by every payment source) -----------------
+function loadInventory_(inventorySheet) {
+  const data = inventorySheet.getDataRange().getValues();
+  const inventory = {};
+  for (let row = 1; row < data.length; row++) {
+    const sku = String(data[row][0] || '').trim();
+    if (!sku) continue;
+    if (inventory[sku]) throw new Error(`Duplicate inventory SKU: ${sku}`);
+    const stock = Number(data[row][4]);
+    if (data[row][4] === '' || !Number.isSafeInteger(stock) || stock < 0)
+      throw new Error(`Invalid stock: ${sku}`);
+    inventory[sku] = { row, stock, price: cents_(String(data[row][3])) };
+  }
+  return inventory;
+}
+
+function commitLedger_(ordersSheet, inventorySheet, inventory, quantities, rowValues) {
   const requests = [];
   Object.keys(quantities).forEach(sku => {
     const item = inventory[sku];
@@ -298,16 +400,6 @@ function recordOrder(verifiedOrder) {
     fields: 'userEnteredValue' } });
   // Atomic within this Sheets API request: order row and all stock changes.
   Sheets.Spreadsheets.batchUpdate({ requests }, sheetId_());
-
-  const notifyEmail = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
-  if (notifyEmail) {
-    try {
-      MailApp.sendEmail(notifyEmail, `[SANDBOX] New order ${verifiedOrder.id}`, itemsSummary);
-    } catch (err) {
-      // Email failure cannot roll back a successfully recorded order.
-      logError_(`Order ${verifiedOrder.id} recorded; notification failed`);
-    }
-  }
 }
 
 function assertHeaders_(sheet, expected) {

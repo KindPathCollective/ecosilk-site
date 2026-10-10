@@ -17,6 +17,10 @@ window.ECOSILK_CONFIG = {
   PAYPAL_CLIENT_ID: "AZ2QiaVg4WCQ6hMBvllDmWiYp7jVIvqFMcf2czr1-KDKz7YPkI70nauA7MFJwcpkZ0Y9KHlRA6ohzvzc",
   PAYPAL_ENV: "sandbox",
   CURRENCY: "AUD",
+  // Which checkout to show: "paypal" (default, unchanged) or "stripe" (hosted Stripe Checkout via the
+  // Worker — test mode only until you deliberately go live; see worker/README.md).
+  PAYMENT_PROVIDER: "paypal",
+  PAYMENTS_ENDPOINT: "",   // Worker URL for /create-session; blank = use ASSISTANT_ENDPOINT
 
   // --- Formspree (orders, newsletter, contact, wholesale) ---
   // Create forms at formspree.io and paste each form's ID (the part after /f/).

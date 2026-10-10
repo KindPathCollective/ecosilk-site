@@ -61,7 +61,7 @@
       <!-- STEP 3 -->
       <div class="panel" id="step3" hidden>
         <h2>Pay securely</h2>
-        <p class="muted small" style="margin-bottom:var(--space-5);">Pay with PayPal, or with a card through PayPal — no PayPal account needed. Your card details never touch our site.</p>
+        <p class="muted small" id="payIntro" style="margin-bottom:var(--space-5);">Pay with PayPal, or with a card through PayPal — no PayPal account needed. Your card details never touch our site.</p>
         <div id="paypal-button-container" aria-live="polite"></div>
         <p class="small muted" id="paypalStatus" style="margin-top:var(--space-3);"></p>
         <div class="test-pay" id="testPay" hidden>
@@ -169,10 +169,44 @@
     location.href = "thank-you.html";
   }
 
+  // Stripe: the Worker prices the cart from the catalog (never from this page) and returns a hosted Checkout URL.
+  let stripeReady = false;
+  function initStripe() {
+    const status = document.getElementById("paypalStatus"); const box = document.getElementById("paypal-button-container");
+    document.getElementById("payIntro").textContent = "Pay by card, Apple Pay or Google Pay on Stripe's secure page. Your card details never touch our site.";
+    if (stripeReady) return; stripeReady = true;
+    const endpoint = (CFG.PAYMENTS_ENDPOINT || CFG.ASSISTANT_ENDPOINT || "").replace(/\/$/, "");
+    if (!endpoint) { status.textContent = "Card payments aren't configured yet (set PAYMENTS_ENDPOINT in config.js)."; return; }
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn btn-primary btn-lg"; btn.textContent = "Pay securely with Stripe";
+    box.appendChild(btn);
+    status.textContent = "Test mode — use card 4242 4242 4242 4242, any future expiry and any CVC. No real money moves.";
+    btn.addEventListener("click", async () => {
+      btn.disabled = true; btn.textContent = "Preparing secure checkout…";
+      try {
+        totals = E.computeTotals(); const cust = readForm(); const number = E.newOrderNumber();
+        const res = await fetch(endpoint + "/create-session", { method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ items: totals.lines.map(l => ({ sku: l.sku, qty: l.qty })), code: totals.code || "", customer: cust, orderNumber: number }) });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.url) throw new Error(out.error || "Couldn't start checkout.");
+        // The server's total is what Stripe will charge; refuse to proceed if it disagrees with what the shopper was shown.
+        if (out.totals && Math.abs(out.totals.totalCents - Math.round(totals.total * 100)) > 0) throw new Error("The total changed — please review your bag and try again.");
+        E.saveOrder({ number, placedAt: new Date().toISOString(), status: "AWAITING_PAYMENT", payment: { method: "stripe", status: "PENDING", id: out.id }, customer: cust,
+          lines: totals.lines.map(l => ({ sku: l.sku, name: E.displayTitle(l.product), category: E.shortName(l.product.category), colour: l.product.color, qty: l.qty, unit: l.product.price, total: l.lineTotal })),
+          gifts: totals.gifts.map(g => ({ sku: g.sku, name: E.displayTitle(g.product), label: g.label })),
+          subtotal: totals.subtotal, volumeDiscount: totals.volumeDiscount, discount: totals.discount, code: totals.code || "", shipping: totals.shipping, gst: totals.gst, total: totals.total, currency: CFG.CURRENCY, testMode: false });
+        E.track("begin_checkout", { currency: "AUD", value: totals.total });
+        location.href = out.url;
+      } catch (err) {
+        status.textContent = err.message || "Couldn't start checkout."; btn.disabled = false; btn.textContent = "Pay securely with Stripe";
+      }
+    });
+  }
+
   // Payment init
   let paypalLoaded = false;
   function initPayment() {
     document.getElementById("testPay").hidden = !CFG.TEST_MODE;
+    if (CFG.PAYMENT_PROVIDER === "stripe") { initStripe(); return; }
     const status = document.getElementById("paypalStatus");
     if (paypalLoaded) return; paypalLoaded = true;
     if (!CFG.PAYPAL_CLIENT_ID) { status.textContent = "PayPal isn't configured yet (set PAYPAL_CLIENT_ID in config.js)."; return; }
