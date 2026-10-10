@@ -59,7 +59,8 @@
   const E = window.Ecosilk; const CFG = E.CFG;
   const o = E.getLastOrder();
   const back = new URLSearchParams(location.search);
-  if (back.get("paid") === "1" && back.get("session_id")) { E.clearCart(); E.clearPromo(); } // returning from Stripe Checkout
+  // Returning from Stripe Checkout: only clear the bag when the session matches the order saved before redirecting.
+  if (back.get("paid") === "1" && o && o.payment && o.payment.method === "stripe" && o.payment.id === back.get("session_id")) { E.clearCart(); E.clearPromo(); }
   if (!o) { document.getElementById("thanksTitle").textContent = "No recent order found"; document.getElementById("thanksSub").innerHTML = 'Head to the <a href="shop.html">shop</a> to start one.'; document.getElementById("aiNote").hidden = true; return; }
   document.getElementById("orderNo").textContent = o.number;
   if (o.testMode) { document.getElementById("thanksTitle").textContent = `Test order placed, ${o.customer.firstName}`; document.getElementById("thanksSub").textContent = "This was a dummy-run order: nothing was charged. Everything else ran exactly as it will for a real customer."; }
