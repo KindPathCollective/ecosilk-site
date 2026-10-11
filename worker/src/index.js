@@ -16,7 +16,7 @@
    ============================================================ */
 import { CATALOG_SUMMARY, PRODUCT_INDEX } from "./catalog.js";
 import { CartError } from "./pricing.js";
-import { createCheckoutSession, verifyWebhook, handleStripeEvent, StripeError } from "./stripe.js";
+import { createCheckoutSession, verifyWebhook, handleStripeEvent, StripeError, secretShapes, describeSecret } from "./stripe.js";
 
 const BUSINESS = {
   name: "Ecosilk Bags", email: "info@ecosilkbags.com.au", phone: "0439 461 919",
@@ -148,14 +148,18 @@ export async function handleRequest(request, env) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/^\/api/, "").replace(/\/$/, "") || "/";
   try {
-    if (request.method === "GET" && (path === "/health" || path === "/")) return new Response(JSON.stringify({ ok: true, provider: env.AI_PROVIDER || "openai", model: env.AI_MODEL || null, products: Object.keys(PRODUCT_INDEX).length }), { headers });
+    if (request.method === "GET" && (path === "/health" || path === "/")) return new Response(JSON.stringify({ ok: true, provider: env.AI_PROVIDER || "openai", model: env.AI_MODEL || null, products: Object.keys(PRODUCT_INDEX).length, stripeSecretsOk: secretShapes(env) }), { headers });
     if (request.method !== "POST") return new Response(JSON.stringify({ error: "method" }), { status: 405, headers });
     if (path === "/stripe-webhook") {
       // Server-to-server: raw body is needed for the signature, and no CORS headers are offered.
       const raw = await request.text();
       let event;
       try { event = await verifyWebhook(raw, request.headers.get("stripe-signature"), env.STRIPE_WEBHOOK_SECRET); }
-      catch (e) { return new Response(JSON.stringify({ error: "invalid signature" }), { status: 400, headers: { "content-type": "application/json" } }); }
+      catch (e) {
+        // Say why in the (private) Worker log: the reason plus the secret's shape, never its value.
+        console.error(`Webhook rejected: ${e && e.message}; STRIPE_WEBHOOK_SECRET ${describeSecret(env.STRIPE_WEBHOOK_SECRET)}`);
+        return new Response(JSON.stringify({ error: "invalid signature" }), { status: 400, headers: { "content-type": "application/json" } });
+      }
       const out = await handleStripeEvent(env, event, PRODUCT_INDEX);
       return new Response(JSON.stringify({ status: out.status }), { status: out.httpStatus, headers: { "content-type": "application/json" } });
     }

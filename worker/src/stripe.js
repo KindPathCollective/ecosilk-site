@@ -19,6 +19,22 @@ function assertKey(env) {
   return key;
 }
 
+/** Are the Stripe secrets the right shape? Booleans only, so this is safe to show on /health. */
+export function secretShapes(env) {
+  return {
+    stripeKey: /^(sk|rk)_test_[A-Za-z0-9]{16,}$/.test(env.STRIPE_SECRET_KEY || ""),
+    webhookSecret: /^whsec_[A-Za-z0-9]{16,}$/.test(env.STRIPE_WEBHOOK_SECRET || ""),
+    sinkToken: /^\S{32,}$/.test(env.ORDER_SINK_TOKEN || "")
+  };
+}
+
+/** Describe a secret for private logs without revealing it: length, a known key prefix (never other characters), stray whitespace/quotes. */
+export function describeSecret(value) {
+  const v = String(value == null ? "" : value);
+  const m = v.match(/^(sk_test_|sk_live_|rk_test_|rk_live_|pk_test_|pk_live_|whsec_)/);
+  return `len=${v.length} prefix=${m ? m[1] : "unrecognised"} edgeWhitespace=${v !== v.trim()} quoted=${/^["']|["']$/.test(v)}`;
+}
+
 /** Flatten nested objects/arrays into Stripe's bracketed form encoding. */
 export function formEncode(obj, prefix = "", out = []) {
   for (const [k, v] of Object.entries(obj)) {

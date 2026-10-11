@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { PRODUCT_INDEX } from "../worker/src/catalog.js";
 import { handleRequest } from "../worker/src/index.js";
-import { formEncode, computeSignature, verifyWebhook, createCheckoutSession, sessionToLedgerOrder, handleStripeEvent } from "../worker/src/stripe.js";
+import { formEncode, computeSignature, verifyWebhook, createCheckoutSession, sessionToLedgerOrder, handleStripeEvent, secretShapes, describeSecret } from "../worker/src/stripe.js";
 import { CartError } from "../worker/src/pricing.js";
 
 let passed = 0;
@@ -163,6 +163,42 @@ test("Router: Stripe failures do not leak details to the browser", async () => {
   mockFetch(() => json({ error: { message: "secret detail sk_test_abc" } }, 401));
   const res = await handleRequest(new Request("https://w.test/create-session", { method: "POST", body: JSON.stringify({ items: [{ sku: "ESG", qty: 1 }], customer }) }), env);
   assert.equal(res.status, 502); assert.doesNotMatch(await res.text(), /sk_test|secret detail/);
+});
+
+const GOOD_KEY = "sk_test_" + "A1b2C3d4".repeat(4);
+const GOOD_WHSEC = "whsec_" + "Z9y8X7w6".repeat(4);
+test("Secret shapes: good values pass, look-alike mistakes fail", () => {
+  const ok = secretShapes({ STRIPE_SECRET_KEY: GOOD_KEY, STRIPE_WEBHOOK_SECRET: GOOD_WHSEC, ORDER_SINK_TOKEN: "t".repeat(48) });
+  assert.deepEqual(ok, { stripeKey: true, webhookSecret: true, sinkToken: true });
+  const bad = secretShapes({ STRIPE_SECRET_KEY: " " + GOOD_KEY, STRIPE_WEBHOOK_SECRET: GOOD_KEY, ORDER_SINK_TOKEN: "short" });
+  assert.deepEqual(bad, { stripeKey: false, webhookSecret: false, sinkToken: false });
+  assert.equal(secretShapes({ STRIPE_SECRET_KEY: "sk_live_" + "a".repeat(32) }).stripeKey, false);
+  assert.equal(secretShapes({ STRIPE_SECRET_KEY: `"${GOOD_KEY}"` }).stripeKey, false);
+  assert.deepEqual(secretShapes({}), { stripeKey: false, webhookSecret: false, sinkToken: false });
+});
+test("describeSecret reveals shape but never the value", () => {
+  const d = describeSecret(GOOD_KEY);
+  assert.match(d, /len=40 prefix=sk_test_ edgeWhitespace=false quoted=false/);
+  assert.ok(!d.includes("A1b2C3d4"));
+  const junk = describeSecret(` "mystery${"Q".repeat(20)}"\n`);
+  assert.match(junk, /prefix=unrecognised edgeWhitespace=true/); assert.ok(!junk.includes("mystery") && !junk.includes("QQQQ"));
+});
+test("Router: /health reports secret shapes as booleans only", async () => {
+  const res = await handleRequest(new Request("https://w.test/health"), { ...env, STRIPE_SECRET_KEY: GOOD_KEY, STRIPE_WEBHOOK_SECRET: "sk_test_" + "a".repeat(30) });
+  const out = await res.json(); const text = JSON.stringify(out);
+  assert.deepEqual(out.stripeSecretsOk, { stripeKey: true, webhookSecret: false, sinkToken: true });
+  assert.ok(!text.includes(GOOD_KEY) && !text.includes("aaaaaaaa"));
+});
+test("Router: a rejected webhook logs the reason and secret shape, never the secret", async () => {
+  const logged = []; const orig = console.error; console.error = (...a) => logged.push(a.join(" "));
+  try {
+    const raw = JSON.stringify({ type: "checkout.session.completed" });
+    const res = await handleRequest(new Request("https://w.test/stripe-webhook", { method: "POST", headers: { "stripe-signature": await signed(raw, "whsec_somebodyelse") }, body: raw }), { ...env, STRIPE_WEBHOOK_SECRET: GOOD_WHSEC });
+    assert.equal(res.status, 400);
+  } finally { console.error = orig; }
+  const line = logged.join("\n");
+  assert.match(line, /Webhook rejected: Signature mismatch; STRIPE_WEBHOOK_SECRET len=\d+ prefix=whsec_/);
+  assert.ok(!line.includes("Z9y8X7w6") && !line.includes("somebodyelse"));
 });
 
 const realFetch = globalThis.fetch;
