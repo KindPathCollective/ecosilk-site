@@ -8,3 +8,10 @@ AI_MODEL = "gpt-4.1-mini"       # or "claude-sonnet-4-5"
 ALLOWED_ORIGINS = "https://kindpathcollective.github.io,https://www.ecosilkbags.com.au,https://ecosilkbags.com.au"
 
 # Secret (never commit): run `npx wrangler secret put AI_API_KEY`
+
+# --- Stripe checkout (test mode) ---
+# Secrets (never commit):  npx wrangler secret put STRIPE_SECRET_KEY   (sk_test_… only)
+#                          npx wrangler secret put STRIPE_WEBHOOK_SECRET (whsec_…)
+#                          npx wrangler secret put ORDER_SINK_TOKEN      (same value as the Apps Script property)
+SITE_URL = "https://kindpathcollective.github.io/ecosilk-site"
+ORDER_SINK_URL = "https://script.google.com/macros/s/AKfycbwPeM3WPX9FI2I0c1fCz4z4khKNy4dE2_mRWYPZt5utZXTFUN7YUJ_3l34A-bkUvoHm/exec"
